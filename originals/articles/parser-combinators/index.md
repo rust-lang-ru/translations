@@ -1,7 +1,4 @@
-+++
-title = "Learning Parser Combinators With Rust"
-date = 2019-04-18
-+++
+# Learning Parser Combinators With Rust
 
 *This article teaches the fundamentals of parser combinators to people who are
 already Rust programmers. It assumes no other knowledge, and will explain
