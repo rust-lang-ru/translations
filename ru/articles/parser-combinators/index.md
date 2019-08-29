@@ -17,8 +17,7 @@ need of a parser.
 
 The novice programmer will ask, "what is a parser?"
 
-The intermediate programmer will say, "that's easy, I'll write a regular
-expression."
+Программист среднего уровня скажет: «Это просто, я напишу регулярное выражение».
 
 Мастер-программист скажет: «Отойди, я знаю lex и yacc».
 
@@ -51,10 +50,9 @@ The novice has the right idea.
 
 Для выполнения тестов, представленных в статье, Как и следовало ожидать, используется `cargo test`.
 
-### The Xcruciating Markup Language
+### Xcruciating язык разметки
 
-We're going to write a parser for a simplified version of XML. It looks like
-this:
+Мы собираемся написать парсер для упрощенной версии XML. Это выглядит так:
 
 ```xml
 <parent-element>
@@ -87,30 +85,21 @@ struct Element {
 }
 ```
 
-No fancy types, just a string for a name (that's the identifier at the start of
-each tag), attributes as pairs of strings (identifier and value), and a list of
-child elements that look exactly the same as the parent.
+Никаких причудливых типов, только строка для имени (это идентификатор в начале каждого тега), атрибуты в виде пар строк (идентификатор и значение) и список дочерних элементов, которые выглядят точно так же, как родительский.
 
-(If you're typing along, make sure you include those derives. You're going to
-need them later.)
+(Если вы печатаете, убедитесь, что вы включили эти производные. Они понадобятся вам позже.)
 
-### Defining The Parser
+### Определение парсера
 
-Well, then, it's time to write the parser.
+Ну что ж, пришло время написать парсер.
 
-Parsing is a process of deriving structure from a stream of data. A parser is
-something which teases out that structure.
+Разбор - это процесс получения структуры из потока данных. Парсер - это то, что выявляет эту структуру.
 
 В дисциплине, которую мы собираемся исследовать, синтаксический анализатор, в его самой простой форме, является функцией, которая принимает некоторый ввод и возвращает либо проанализированный вывод вместе с оставшейся частью ввода, либо ошибку, говорящую "Я не смог разобрать это".
 
-It turns out that's also, in a nutshell, what a parser looks like in its more
-complicated forms. You might complicate what the input, the output and the error
-all mean, and if you're going to have good error messages you'll need to, but
-the parser stays the same: something that consumes input and either produces
-some parsed output along with what's left of the input or lets you know it
-couldn't parse the input into the output.
+Оказывается, это также, в двух словах, как выглядит синтаксический анализатор в его более сложных формах. Вы можете усложнить, что означают ввод, вывод и ошибка, и если вам нужны хорошие сообщения об ошибках, которые вам понадобятся, но синтаксический анализатор останется прежним: что-то, что потребляет ввод и выдает какой-то проанализированный вывод вместе с тем, что осталось от ввода или позволяет вам знать, что он не может проанализировать ввод в вывод.
 
-Let's write that down as a function type.
+Давайте запишем это как тип функции.
 
 ```rust
 Fn(Input) -> Result<(Input, Output), Error>
@@ -134,13 +123,9 @@ Fn(&str) -> Result<(&str, Element), &str>
 фрагмент `input[0..1]`. С другой стороны, у них есть много методов, которые
 полезны для разбора строк, которые не имеют срезы байтов.
 
-In fact, in general we're going to be relying on those methods rather than
-indexing it like that, because, well, Unicode. In UTF-8, and all Rust strings
-are UTF-8, these indexes don't always correspond to single characters, and it's
-better for all parties concerned that we ask the standard library to just please
-deal with this for us.
+На самом деле, в общем, мы будем полагаться на эти методы, а не на их индексацию, потому что, ну, в общем, Unicode. В UTF-8, и все строки Rust являются UTF-8, эти индексы не всегда соответствуют отдельным символам, и всем заинтересованным сторонам лучше, чтобы мы попросили стандартную библиотеку просто поработать с этим для нас.
 
-### Our First Parser
+### Наш первый парсер
 
 Давайте попробуем написать парсер, который просто смотрит на первый символ в строке
 и решает, является ли это буквой `a`.
@@ -210,22 +195,17 @@ fn match_literal(expected: &'static str)
 }
 ```
 
-Now this looks a bit different.
+Теперь это выглядит немного иначе.
 
-First of all, let's look at the types. Instead of our function looking like a
-parser, now it takes our `expected` string as an argument, and *returns*
-something that looks like a parser. It's a function that returns a function - in
-other words, a *higher order* function. Basically, we're writing a function that
-*makes* a function like our `the_letter_a` function from before.
+Прежде всего, давайте посмотрим на типы. Вместо того, чтобы наша функция выглядела как парсер, теперь она принимает `expected` строку в качестве аргумента и *возвращает* что-то похожее на парсер. Это функция, которая возвращает функцию - другими словами, функцию *более высокого порядка* . По сути, мы пишем функцию, которая *делает* функцию, подобную нашей функции `the_letter_a` ранее.
 
-So, instead of doing the work in the function body, we return a closure that
-does the work, and that matches our type signature for a parser from previously.
+Таким образом, вместо выполнения работы в теле функции, мы возвращаем замыкание, которое выполняет эту работу и которое соответствует сигнатуре нашего типа для анализатора из предыдущего.
 
 Сопоставление с шаблоном выглядит одинаково, за исключением того, что мы не можем сопоставить наш строковый литерал напрямую, потому что мы не знаем, что именно, поэтому мы используем условие сопоставления, `if next == expected` вместо этого. В остальном он точно такой же, как и раньше, он просто внутри тела замыкания.
 
-### Testing Our Parser
+### Тестирование нашего парсера
 
-Let's write a test for this to make sure we got it right.
+Давайте напишем тест для этого, чтобы убедиться, что мы правильно поняли.
 
 ```rust
 #[test]
@@ -248,26 +228,19 @@ fn literal_parser() {
 
 Сначала мы создаем парсер: `match_literal("Hello Joe!")`. Это должно потреблять строку `"Hello Joe!"` и вернуть остаток строки, или он должен завершиться с ошибкой и вернуть всю строку.
 
-In the first case, we just feed it the exact string it expects, and we see that
-it returns an empty string and the `()` value that means "we parsed the expected
-string and you don't really need it returned back to you."
+В первом случае мы просто передаем ему именно ту строку, которую ожидаем, и видим, что она возвращает пустую строку и значение `()` которое означает «мы проанализировали ожидаемую строку, и вам не нужно, чтобы она возвращалась вам. "
 
 Во втором мы подаем строку `"Hello Joe! Hello Robert!"` и мы видим, что он действительно использует строку `"Hello Joe!"` и возвращает остаток от ввода: `"Hello Robert!"` (ведущий космос и все).
 
-In the third, we feed it some incorrect input, `"Hello Mike!"`, and note that it
-does indeed reject the input with an error. Not that Mike is incorrect as a
-general rule, he's just not what this parser was looking for.
+В третьем мы вводим неверный ввод: `"Hello Mike!"` и обратите внимание, что он действительно отклоняет ввод с ошибкой. Не то чтобы Майк ошибался как правило, он просто не тот, кого искал этот парсер.
 
-### A Parser For Something Less Specific
+### Парсер для чего-то менее специфичного
 
 Так что это позволяет нам анализировать `<` , `>` , `=` и даже `</` и `/>`. Мы уже практически закончили!
 
 Следующий после открывающего символа `<` - это имя элемента. Мы не можем сделать это с помощью простого сравнения строк. Но мы *могли бы* сделать это с помощью регулярного выражения ...
 
-…but let's restrain ourselves. It's going to be a regular expression that
-would be very easy to replicate in simple code, and we don't really need to pull
-in the `regex` crate just for this. Let's see if we can write our own parser for
-this using nothing but Rust's standard library.
+... но давайте сдерживаться. Это будет регулярное выражение, которое будет очень легко реплицировать в простом коде, и для этого нам не нужно извлекать `regex` . Давайте посмотрим, сможем ли мы написать собственный парсер для этого, используя только стандартную библиотеку Rust.
 
 Напоминая правило для идентификатора имени элемента, оно выглядит следующим образом: один
 алфавитный символ, за которым следует ноль или более из любого алфавитного символа,
@@ -296,11 +269,7 @@ fn identifier(input: &str) -> Result<(&str, String), &str> {
 }
 ```
 
-As always, we look at the type first. This time we're not writing a function to
-build a parser, we're just writing the parser itself, like our first time. The
-notable difference here is that instead of a result type of `()`, we're
-returning a `String` in the tuple along with the remaining input. This `String`
-is going to contain the identifier we've just parsed.
+Как всегда, мы сначала смотрим на тип. На этот раз мы не пишем функцию для создания парсера, мы просто пишем сам парсер, как в первый раз. Заметным отличием здесь является то, что вместо типа результата `()` мы возвращаем `String` в кортеже вместе с оставшимися входными данными. Эта `String` будет содержать идентификатор, который мы только что проанализировали.
 
 Имея это в виду, сначала мы создаем пустую `String` и называем ее `matched` . Это будет наш результат. Мы также получаем итератор для `input` символов, который мы собираемся начать разделять.
 
@@ -324,7 +293,7 @@ struct Element {
 
 На самом деле мы только что закончили анализатор для первой части, поля `name`. `String` возвращает наш парсер, идет прямо туда. Это также правильный парсер для первой части каждого `attribute`.
 
-Let's test that.
+Давайте проверим это.
 
 ```rust
 #[test]
@@ -344,13 +313,9 @@ fn identifier_parser() {
 }
 ```
 
-We see that in the first case, the string `"i-am-an-identifier"` is parsed in
-its entirety, leaving only the empty string. In the second case, the parser
-returns `"not"` as the identifier, and the rest of the string is returned as the
-remaining input. In the third case, the parser fails outright because the first
-character it finds is not a letter.
+Мы видим, что в первом случае строка `"i-am-an-identifier"` анализируется полностью, оставляя только пустую строку. Во втором случае синтаксический анализатор возвращает `"not"` в качестве идентификатора, а остальная часть строки возвращается в качестве оставшегося ввода. В третьем случае синтаксический анализатор терпит неудачу сразу, потому что первый символ, который он находит, не буква.
 
-### Combinators
+### Комбинаторы
 
 Так что теперь мы можем проанализировать открывающий символ `<`, и мы можем проанализировать следующий идентификатор, но нам нужно проанализировать *оба*, чтобы иметь возможность добиться прогресса здесь. Поэтому следующим шагом будет написание другой функции комбинаторного синтаксического анализатора, но той, которая принимает два *синтаксических анализатора в* качестве входных данных и возвращает новый анализатор, который анализирует их обоих по порядку. Другими словами, *комбинатор* парсеров, потому что он объединяет два парсера в новый. Посмотрим, сможем ли мы это сделать.
 
@@ -370,8 +335,7 @@ where
 }
 ```
 
-It's getting slightly complicated here, but you know what to do: start by
-looking at the types.
+Здесь становится немного сложнее, но вы знаете, что делать: начните с рассмотрения типов.
 
 Прежде всего, у нас есть четыре типа переменных: `P1`, `P2`, `R1` и `R2`. Это Parser1, Parser2, Result1 и Result2. `P1` и `P2` являются функциями, и вы заметите, что они следуют хорошо установленному шаблону функций синтаксического анализатора: так же, как и возвращаемое значение, они принимают `&str` в качестве входных данных и возвращают `Result` пары оставшихся входных данных и результата, или ошибку.
 
@@ -441,17 +405,13 @@ where
 
 Возможно, вы уже заметили, что мы продолжаем повторять форму сигнатуры типа синтаксического анализатора: `Fn(&str) -> Result<(&str, Output), &str>`. Возможно, вы устали от того, что читаете это полностью, так же, как я пишу, поэтому я думаю, что пришло время представить типаж, сделать вещи немного более читабельными и позволить нам добавить некоторую расширяемость к нашему парсеру.
 
-But first of all, let's make a type alias for that return type we keep using:
+Но прежде всего давайте создадим псевдоним типа для того возвращаемого типа, который мы продолжаем использовать:
 
 ```rust
 type ParseResult<'a, Output> = Result<(&'a str, Output), &'a str>;
 ```
 
-So that now, instead of typing that monstrosity out all the time, we can just
-type `ParseResult<String>` or similar. We've added a lifetime there, because the
-type declaration requires it, but a lot of the time the Rust compiler should be
-able to infer it for you. As a rule, try leaving the lifetime out and see if
-rustc gets upset, then just put it in if it does.
+Так что теперь, вместо того, чтобы постоянно печатать это чудовище, мы можем просто напечатать `ParseResult<String>` или подобное. Мы добавили туда время жизни, потому что объявление типа требует этого, но большую часть времени компилятор Rust должен иметь возможность сделать это за вас. Как правило, попробуйте оставить время жизни и посмотреть, расстроится ли rustc, а затем просто вставьте его, если это произойдет.
 
 Время жизни `'a`, в данном случае, относится конкретно к времени жизни *входа* .
 
@@ -480,9 +440,7 @@ where
 
 Таким образом, мы не только можем передавать те же функции, что и ранее, когда парсеры полностью реализуют типаж `Parser`, мы также открываем возможность использовать другие типы в качестве парсеров.
 
-But, more importantly, it saves us from having to type out those function
-signatures all the time. Let's rewrite the `map` function to see how it works
-out.
+Но, что более важно, это избавляет нас от необходимости постоянно печатать эти сигнатуры функций. Давайте перепишем функцию `map` чтобы увидеть, как она работает.
 
 ```rust
 fn map<'a, P, F, A, B>(parser: P, map_fn: F) -> impl Parser<'a, B>
@@ -498,7 +456,7 @@ where
 
 Здесь следует особо отметить одну вещь: вместо непосредственного вызова синтаксического анализатора как функции, мы теперь должны перейти к `parser.parse(input)`, потому что мы не знаем, является ли тип `P` функцией, мы просто знаем, что он реализует `Parser`, и поэтому мы должны придерживаться интерфейса, который обеспечивает `Parser`. В противном случае тело функции выглядит точно так же, а типы выглядят намного аккуратнее. Существует новый срок службы `'a'` для дополнительного шума, но в целом это довольно значительное улучшение.
 
-If we rewrite the `pair` function in the same way, it's even more tidy now:
+Если мы переписываем `pair` функцию таким же образом, она становится еще более аккуратной:
 
 ```rust
 fn pair<'a, P1, P2, R1, R2>(parser1: P1, parser2: P2) -> impl Parser<'a, (R1, R2)>
@@ -516,11 +474,9 @@ where
 }
 ```
 
-Same thing here: the only changes are the tidied up type signatures and the need
-to go `parser.parse(input)` instead of `parser(input)`.
+То же самое и здесь: единственными изменениями являются приведенные в порядок сигнатуры типов и необходимость использовать `parser.parse(input)` вместо `parser(input)` .
 
-Actually, let's tidy up `pair`'s function body too, the same way we did with
-`map`.
+На самом деле, давайте приведем в порядок тело функции `pair` , так же, как мы сделали с `map` .
 
 ```rust
 fn pair<'a, P1, P2, R1, R2>(parser1: P1, parser2: P2) -> impl Parser<'a, (R1, R2)>
@@ -539,9 +495,9 @@ where
 
 Метод `and_then` в `Result` похож на `map`, за исключением того, что функция отображения не возвращает новое значение для перехода в `Result`, но в целом новый `Result`. Приведенный выше код идентичен эффекту от предыдущей версии выписанной со всеми этими `match` блоками. Мы вернемся к `and_then` позже, но здесь и сейчас давайте реализуем эти `left` и `right` комбинаторы, теперь, когда у нас есть красивая и аккуратная `map` .
 
-### Left And Right
+### Лево и право
 
-With `pair` and `map` in place, we can write `left` and `right` very succinctly:
+С `pair` и `map` на месте, мы можем написать `left` и `right` очень кратко:
 
 ```rust
 fn left<'a, P1, P2, R1, R2>(parser1: P1, parser2: P2) -> impl Parser<'a, R1>
@@ -562,14 +518,11 @@ where
 
 ```
 
-We use the `pair` combinator to combine the two parsers into a parser for a
-tuple of their results, and then we use the `map` combinator to select just the
-part of the tuple we want to keep.
+Мы используем комбинатор `pair` чтобы объединить два парсера в парсер для кортежа их результатов, а затем мы используем комбинатор `map` чтобы выбрать только ту часть кортежа, которую мы хотим сохранить.
 
 Переписав наш тест для первых двух частей нашего элемента тега, теперь он стал немного чище, и в процессе мы получили некоторые важные новые возможности комбинатора синтаксического анализатора.
 
-We have to update our two parsers to use `Parser` and `ParseResult` first,
-though. `match_literal` is the more complicated one:
+Мы должны обновить наши два парсера, чтобы сначала использовать `Parser` и `ParseResult` . `match_literal` является более сложным:
 
 ```rust
 fn match_literal<'a>(expected: &'static str) -> impl Parser<'a, ()> {
@@ -582,14 +535,13 @@ fn match_literal<'a>(expected: &'static str) -> impl Parser<'a, ()> {
 
 В дополнение к изменению типа возвращаемого значения, мы также должны убедиться, что тип ввода для замыкания - `&'a str` , или rustc расстроится.
 
-For `identifier`, just change the return type and you're done, inference takes
-care of the lifetimes for you:
+Для `identifier` , просто измените тип возвращаемого значения, и все готово, логический вывод позаботится о времени жизни для вас:
 
 ```rust
 fn identifier(input: &str) -> ParseResult<String> {
 ```
 
-And now the test, satisfyingly absent that ungainly `()` in the result.
+А теперь тест, удовлетворительно отсутствует, что неловко `()` в результате.
 
 ```rust
 #[test]
@@ -604,17 +556,15 @@ fn right_combinator() {
 }
 ```
 
-### One Or More
+### Один или больше
 
 Давайте продолжим разбор этого тега элемента. У нас есть открывающий символ `<` и у нас есть идентификатор. Что дальше? Это должна быть наша первая пара атрибутов.
 
-No, actually, those attributes are optional. We're going to have to find a way
-to deal with things being optional.
+Нет, на самом деле, эти атрибуты не являются обязательными. Нам нужно найти способ справиться с вещами, которые не являются обязательными.
 
 Нет, подожди, подожди, на самом деле мы должны иметь дело с чем-то еще, *прежде чем* мы доберемся до первой необязательной пары атрибутов: пробел.
 
-Between the end of the element name and the start of the first attribute name
-(if there is one), there's a space. We need to deal with that space.
+Между концом имени элемента и началом первого имени атрибута (если оно есть) есть пробел. Нам нужно разобраться с этим пространством.
 
 Это еще хуже - нам нужно иметь дело с *одним или несколькими пробелами*, потому что `<element      attribute="value"/>` является допустимым синтаксисом, даже если он немного перегружен пробелами. Поэтому сейчас самое время подумать о том, можем ли мы написать комбинатор, выражающий идею *одного или нескольких* синтаксических анализаторов.
 
@@ -647,13 +597,9 @@ where
 
 Прежде всего, типом возвращаемого значения парсера, из которого мы строим, является `A`, а типом возврата комбинированного синтаксического анализатора является `Vec<A>` - любое количество `A`.
 
-The code does indeed look very similar to `identifier`. First, we parse the
-first element, and if it's not there, we return with an error. Then we parse as
-many more elements as we can, until the parser fails, at which point we return
-the vector with the elements we collected.
+Код действительно очень похож на `identifier` . Сначала мы анализируем первый элемент, и если его там нет, мы возвращаемся с ошибкой. Затем мы анализируем как можно больше элементов, пока синтаксический анализатор не даст сбой, и в этот момент мы возвращаем вектор с собранными нами элементами.
 
-Looking at that code, how easy would it be to adapt it to the idea of *zero* or
-more? We just need to remove that first run of the parser:
+Глядя на этот код, насколько легко было бы адаптировать его к идее *ноль* или более? Нам просто нужно удалить этот первый запуск парсера:
 
 ```rust
 fn zero_or_more<'a, P, A>(parser: P) -> impl Parser<'a, Vec<A>>
@@ -673,7 +619,7 @@ where
 }
 ```
 
-Let's write some tests to make sure those two work.
+Давайте напишем несколько тестов, чтобы убедиться, что эти два работают.
 
 ```rust
 #[test]
@@ -717,21 +663,13 @@ where
 
 Давайте оставим это как упражнение для читателя. Прямо сейчас у нас все будет в порядке только с `zero_or_more` и `one_or_more`.
 
-Another exercise might be to find a way around those ownership issues - maybe by
-wrapping a parser in an `Rc` to make it clonable?
+Другое упражнение может заключаться в том, чтобы найти способ обойти эти проблемы владения - может быть, обернув парсер в `Rc` чтобы сделать его клонируемым?
 
-### A Predicate Combinator
+### Предикатный комбинатор
 
-We now have the building blocks we need to parse that whitespace with
-`one_or_more`, and to parse the attribute pairs with `zero_or_more`.
+Теперь у нас есть строительные блоки, которые нам нужны для анализа этого пробела с помощью `one_or_more` и пар атрибутов с помощью `zero_or_more` .
 
-Actually, hold on a moment. We don't really want to parse the whitespace *then*
-parse the attributes. If you think about it, if there are no attributes, the
-whitespace is optional, and we could encounter an immediate `>` or `/>`. But if
-there's an attribute, there *must* be whitespace first. Lucky for us, there must
-also be whitespace between each attribute, if there are several, so what we're
-really looking at here is a sequence of *zero or more* occurrences of *one or
-more* whitespace items followed by the attribute.
+На самом деле, подожди минутку. Мы не хотим анализировать пробелы, а *затем* анализировать атрибуты. Если вы думаете об этом, если нет атрибутов, пробел является необязательным, и мы можем столкнуться с немедленным `>` или `/>` . Но если есть атрибут, сначала *должен* быть пробел. К счастью для нас, между каждым атрибутом также должен быть пробел, если их несколько, поэтому мы действительно рассматриваем здесь последовательность из *нуля или более* вхождений *одного или нескольких* элементов пробела, за которыми следует атрибут.
 
 Сначала нам нужен парсер для одного элемента пробела. Мы можем пойти одним из трех путей.
 
@@ -752,10 +690,7 @@ fn any_char(input: &str) -> ParseResult<char> {
 }
 ```
 
-And the `pred` combinator also doesn't hold any surprises to our now seasoned
-eyes. We invoke the parser, then we call our predicate function on the value if
-the parser succeeded, and only if that returns true do we actually return a
-success, otherwise we return as much of an error as a failed parse would.
+И комбинатор `pred` также не преподносит сюрпризов нашим теперь опытным глазам. Мы вызываем синтаксический анализатор, затем вызываем нашу функцию предиката для значения, если синтаксический анализатор завершился успешно, и только если он возвращает true, мы фактически возвращаем успех, в противном случае мы возвращаем столько ошибок, сколько и неудачный анализ.
 
 ```rust
 fn pred<'a, P, A, F>(parser: P, predicate: F) -> impl Parser<'a, A>
@@ -774,7 +709,7 @@ where
 }
 ```
 
-And a quick test to make sure everything is in order:
+И быстрый тест, чтобы убедиться, что все в порядке:
 
 ```rust
 #[test]
@@ -805,7 +740,7 @@ fn space0<'a>() -> impl Parser<'a, Vec<char>> {
 }
 ```
 
-### Quoted Strings
+### Цитируемые строки
 
 Можем ли мы, наконец, разобрать эти атрибуты после всего этого? Да, нам просто нужно убедиться, что у нас есть все отдельные парсеры для компонентов атрибутов. У нас есть `identifier` уже имя атрибута (хотя это заманчиво, чтобы переписать его с помощью `any_char` и `pred` плюс наши `*_or_more` комбинаторы). `=` просто `match_literal("=")`. У нас короткий анализатор строк в кавычках, так что давайте его построим. К счастью, у нас уже есть все комбинаторы, которые нам нужны для этого.
 
@@ -836,14 +771,11 @@ fn quoted_string<'a>() -> impl Parser<'a, String> {
 - следуют ноль или более вещей, которые *не* являются другой кавычкой
 - сопровождаемый другой кавычкой
 
-And, between the `right` and the `left`, we discard the quotes from the result
-value and get our quoted string back.
+А между `right` и `left` мы отбрасываем кавычки из значения результата и возвращаем нашу строку в кавычках.
 
 Но подождите, это не строка. Помните, что возвращается `zero_or_more`? `Vec<A>` для типа возвращаемого внутреннего анализатора `A`. Для `any_char` это `char`. Таким образом, мы имеем не строку, а `Vec<char>`. Вот тут и появляется `map`: мы используем ее, чтобы превратить `Vec<char>` в `String`, используя тот факт, что вы можете создать `String` из `Iterator<Item = char>`, поэтому мы можем просто вызвать `vec_of_chars.into_iter().collect()` и благодаря возможности вывода типов, у нас есть `String`.
 
-Let's just write a quick test to make sure that's all right before we go on,
-because if we needed that many words to explain it, it's probably not something
-we should leave to our faith in ourselves as programmers.
+Давайте просто напишем быстрый тест, чтобы убедиться, что все в порядке, прежде чем мы продолжим, потому что, если нам нужно столько слов, чтобы объяснить это, то, вероятно, мы не должны оставлять это для нашей веры в себя как программистов.
 
 ```rust
 #[test]
@@ -855,12 +787,11 @@ fn quoted_string_parser() {
 }
 ```
 
-So, now, finally, I swear, let's get those attributes parsed.
+Итак, теперь, наконец, я клянусь, давайте разберем эти атрибуты.
 
-### At Last, Parsing Attributes
+### Наконец, атрибуты разбора
 
-We can now parse whitespace, identifiers, `=` signs and quoted strings. That,
-finally, is all we need for parsing attributes.
+Теперь мы можем проанализировать пробелы, идентификаторы, знаки `=` и строки в кавычках. Это, наконец, все, что нам нужно для анализа атрибутов.
 
 Сначала напишем парсер для пары атрибутов. Как вы помните, мы будем хранить их как `Vec<(String, String)>`, поэтому `zero_or_more` что нам нужен анализатор для этого `(String, String)` для {code3}zero_or_more{/code3} нашему надежному комбинатору {code4}zero_or_more{/code4} . Посмотрим, сможем ли мы его построить.
 
@@ -872,8 +803,7 @@ fn attribute_pair<'a>() -> impl Parser<'a, (String, String)> {
 
 Даже не потея! Подводя итог: у нас уже есть удобный комбинатор для разбора кортежа значений, `pair`, поэтому мы используем его с анализатором `identifier`, результатом которого является `String`, а `right` со знаком `=`, значение которого мы не хотим сохранять, и наш свежий `quoted_string` анализатор, который возвращает нам другую `String` .
 
-Now, let's combine that with `zero_or_more` to build that vector - but let's not
-forget that whitespace in between them.
+Теперь давайте объединим это с `zero_or_more` чтобы построить этот вектор, но давайте не будем забывать этот пробел между ними.
 
 ```rust
 fn attributes<'a>() -> impl Parser<'a, Vec<(String, String)>> {
@@ -884,7 +814,7 @@ fn attributes<'a>() -> impl Parser<'a, Vec<(String, String)>> {
 Ноль или более вхождений: один или несколько пробельных символов,
 затем пара атрибутов. Мы используем `right` чтобы отбросить пробел и сохранить пару атрибутов.
 
-Let's test it.
+Давайте проверим это.
 
 ```rust
 #[test]
@@ -902,7 +832,7 @@ fn attribute_parser() {
 }
 ```
 
-Tests are green! Ship it!
+Тесты зеленые! Отправим его!
 
 На самом деле, нет, в этот момент повествования мой rustc жаловался, что мои типы становятся ужасно сложными, и что мне нужно увеличить максимально допустимый размер вложенности типов. Это хороший шанс, что вы получите ту же ошибку на этом этапе, и если вы это делаете, вам нужно знать, как ее устранить. К счастью, в таких ситуациях rustc, как правило, дает хороший совет, поэтому, когда вам нужно добавить `#![type_length_limit = "…some big number…"]` в начало файла, просто сделайте, как говорится. На самом деле, просто сделайте это `#![type_length_limit = "16777216"]` , что позволит нам продвинуться немного дальше в стратосферу сложных типов. Вперед, мы типа космонавты!
 
@@ -918,8 +848,7 @@ fn element_start<'a>() -> impl Parser<'a, (String, Vec<(String, String)>)> {
 }
 ```
 
-With that in place, we can quickly tack the tag closer on it to make a parser
-for the single element.
+Имея это в виду, мы можем быстро прикрепить тег ближе к нему, чтобы создать синтаксический анализатор для отдельного элемента.
 
 ```rust
 fn single_element<'a>() -> impl Parser<'a, Element> {
@@ -936,7 +865,7 @@ fn single_element<'a>() -> impl Parser<'a, Element> {
 
 Ура, у нас такое ощущение, что мы достигли своей цели - сейчас мы действительно строим `Element`!
 
-Let's test this miracle of modern technology.
+Давайте проверим это чудо современных технологий.
 
 ```rust
 #[test]
@@ -955,25 +884,17 @@ fn single_element_parser() {
 }
 ```
 
-…and I think we just ran out of stratosphere.
+... и я думаю, что мы просто исчерпали стратосферу.
 
-The return type of `single_element` is so complicated that the compiler will
-grind away for a very long time until it runs into the very large type size
-limit we gave it earlier, asking for an even larger one. It's clear we can no
-longer ignore this problem, as it's a rather trivial parser and a compilation
-time of several minutes - maybe even several hours for the finished product -
-seems mildly unreasonsable.
+Тип возвращаемого значения `single_element` настолько сложен, что компилятор будет долго `single_element` пока не `single_element` предела очень большого размера, который мы указали ранее, с запросом еще большего. Понятно, что мы больше не можем игнорировать эту проблему, так как это довольно тривиальный синтаксический анализатор, и время компиляции в несколько минут - возможно, даже несколько часов для готового продукта - кажется слегка необоснованным.
 
-Before proceeding, you'd better comment out those two functions and tests while
-we fix things…
+Прежде чем продолжить, вам лучше закомментировать эти две функции и тесты, пока мы что-то исправим ...
 
-### To Infinity And Beyond
+### Бесконечность не предел
 
-If you've ever tried writing a recursive type in Rust, you might already know
-the solution to our little problem.
+Если вы когда-нибудь пытались написать рекурсивный тип в Rust, вы, возможно, уже знаете решение нашей маленькой проблемы.
 
-A very simple example of a recursive type is a singly linked list. You can
-express it, in principle, as an enum like this:
+Очень простым примером рекурсивного типа является односвязный список. В принципе, вы можете выразить это как перечисление:
 
 ```rust
 enum List<A> {
@@ -1028,10 +949,9 @@ impl<'a, Output> Parser<'a, Output> for BoxedParser<'a, Output> {
 
 Это оставляет нам возможность поместить функцию синтаксического анализа в `Box`, и `BoxedParser` будет работать как `Parser` так же, как и функция. Теперь, как упоминалось ранее, это означает, что нужно переместить упакованный синтаксический анализатор в кучу и разыменовывать указатель, чтобы добраться до него, что может стоить нам *нескольких драгоценных наносекунд*, поэтому мы, возможно, захотим отложить *все в* сторону. Достаточно просто собрать некоторые из наиболее популярных комбинаторов.
 
-### An Opportunity Presents Itself
+### Возможность представляет себя
 
-But, just a moment, this presents us with an opportunity to fix another thing
-that's starting to become a bit of a bother.
+Но, на мгновение, это дает нам возможность исправить другую вещь, которая начинает становиться немного беспокойной.
 
 Помните пару последних парсеров, которые мы написали? Поскольку наши комбинаторы являются автономными функциями, когда мы вкладываем их друг в друга, наш код начинает становиться немного не читаемым. Напомним наш парсер `quoted_string`:
 
@@ -1130,15 +1050,13 @@ fn single_element<'a>() -> impl Parser<'a, Element> {
 }
 ```
 
-Let's try and uncomment back `element_start` and the tests we commented out
-earlier and see if things got better. Get that code back in the game and try
-running the tests…
+Давайте попробуем и раскомментируем обратно `element_start` и тесты, которые мы закомментировали ранее, и посмотрим, улучшится ли ситуация. Верните этот код в игру и попробуйте запустить тесты ...
 
 ... и да, время компиляции вернулось к нормальному состоянию сейчас. Вы можете даже удалить эту настройку размера типа в верхней части вашего файла, она вам больше не понадобится.
 
 И это стоило поместить  `map` и `pred` в `Box` - *и* мы получили более приятный синтаксис!
 
-### Having Children
+### Иметь детей
 
 Теперь давайте напишем парсер для открывающего тега для родительского элемента. Он почти идентичен `single_element`, за исключением того, что он заканчивается на `>`, а не на `/>`. За ним также следует ноль или более дочерних элементов и закрывающий тег, но сначала нам нужно проанализировать фактический открывающий тег, так что давайте сделаем это.
 
@@ -1177,9 +1095,7 @@ fn element<'a>() -> impl Parser<'a, Element> {
 }
 ```
 
-Now let's add a parser for the closing tag. It has the interesting property of
-having to match the opening tag, which means the parser has to know what the
-name of the opening tag is. But that's what function arguments are for, yes?
+Теперь давайте добавим парсер для закрывающего тега. У него есть интересное свойство совпадения с открывающим тегом, что означает, что парсер должен знать, как называется открывающий тег. Но для чего нужны аргументы функций, да?
 
 ```rust
 fn close_element<'a>(expected_name: String) -> impl Parser<'a, String> {
@@ -1188,10 +1104,9 @@ fn close_element<'a>(expected_name: String) -> impl Parser<'a, String> {
 }
 ```
 
-That `pred` combinator is proving really useful, isn't it?
+Этот комбинатор `pred` оказывается действительно полезным, не так ли?
 
-And now, let's put it all together for the full parent element parser, children
-and all:
+А теперь давайте соберем все вместе для полного парсера родительского элемента, детей и всего:
 
 ```rust
 fn parent_element<'a>() -> impl Parser<'a, Element> {
@@ -1202,14 +1117,13 @@ fn parent_element<'a>() -> impl Parser<'a, Element> {
 }
 ```
 
-Oops. How do we pass that argument to `close_element` now? I think we're short
-one final combinator.
+К сожалению. Как мы можем передать этот аргумент в `close_element` сейчас? Я думаю, что у нас короткий финальный комбинатор.
 
 Мы так близко сейчас. Как только мы решили эту последнюю проблему, чтобы заставить `parent_element` работать, мы сможем заменить заполнитель `open_element` в парсере `element` нашим новым `parent_element`, и все, у нас есть полностью работающий парсер XML.
 
 Помните, я сказал, что мы вернемся к `and_then` потом? Ну, позже здесь. Фактически нам нужен `and_then`: нам нужно что-то, что принимает парсер, и функцию, которая берет результат парсера и возвращает *новый* парсер, который мы затем запустим. Это немного похоже на `pair`, за исключением того, что вместо того, чтобы просто собрать оба результата в кортеж, мы пропускаем их через функцию. Кроме того, `and_then` работает с `Result` и `Option`, за исключением того, что за ним немного проще следовать, потому что `Result` и `Option` на самом деле ничего не *делают*, это просто вещи, которые содержат некоторые данные (или нет, в зависимости от обстоятельств)).
 
-So let's try writing an implementation for it.
+Итак, давайте попробуем написать реализацию для него.
 
 ```rust
 fn and_then<'a, P, F, A, B, NextP>(parser: P, f: F) -> impl Parser<'a, B>
@@ -1246,9 +1160,9 @@ where
 }
 ```
 
-OK, now, what's it good for?
+Хорошо, теперь, для чего это нужно?
 
-First of all, we can *almost* implement `pair` using it:
+Прежде всего, мы можем *практически* реализовать `pair` используя ее:
 
 ```rust
 fn pair<'a, P1, P2, R1, R2>(parser1: P1, parser2: P2) -> impl Parser<'a, (R1, R2)>
@@ -1266,7 +1180,7 @@ where
 
 Однако, что мы можем сделать с этим даже в Rust, это использовать эту функцию для ленивой генерации правильной версии нашего анализатора `close_element`, или другими словами, мы можем заставить его передать этот аргумент в него.
 
-Recalling our failed attempt:
+Вспоминая нашу неудачную попытку:
 
 ```rust
 fn parent_element<'a>() -> impl Parser<'a, Element> {
@@ -1297,7 +1211,7 @@ fn parent_element<'a>() -> impl Parser<'a, Element> {
 
 Все, что нам нужно сделать сейчас, это вернуться к нашему анализатору `element` и убедиться, что мы изменили `open_element` на `parent_element`, чтобы он анализировал всю структуру элемента, а не только его начало, и я считаю, что мы закончили!
 
-### Are You Going To Say The M Word Or Do I Have To?
+### Собираетесь ли вы сказать М слово или я должен?
 
 Помните, мы говорили о том, как шаблон `map` называется «функтором» на планете Haskell?
 
@@ -1309,19 +1223,15 @@ fn parent_element<'a>() -> impl Parser<'a, Element> {
 
 Это также можно назвать ленивым. Например, если у вас есть `Future<A>` которая все еще ожидает разрешения, вместо `and_then` немедленно вызывающего функцию для создания `Future<B>`, вместо этого он создает новую `Future<B>` которая содержит обе `Future<A>` и функцию, которая затем ожидает завершения `Future<A>`. Когда это происходит вызывается функция с результатом `Future<A>`, и Боб - твой дядя <sup><a href="#footnote1">1</a></sup>, ты возвращаешь свое `Future<B>`. Другими словами, в случае `Future` вы можете думать о функции, которую вы передаете `and_then` как о *функции обратного вызова*, потому что она {code13}and_then{/code13} с результатом исходной `Future`, когда она завершается. Это также немного более интересным , чем это, потому что она возвращает {em14}новую{/em14} {code15}Future{/code15}, которое может или не может уже решено, так что путь к {em16}цепочке{/em16} `Future`s вместе.
 
-As with functors, though, Rust's type system isn't currently capable of
-expressing monads, so let's only note that this pattern is called a monad, and
-that, rather disappointingly, it's got nothing at all to do with burritos,
-contrary to what they say on the internets, and move on.
+Как и в случае с функторами, система типов Rust в настоящее время не способна выражать монады, поэтому отметим только, что этот шаблон называется монадой, и что, к сожалению, он не имеет ничего общего с буррито, в отличие от того, что они скажи в интернете и двигайся дальше.
 
-### Whitespace, Redux
+### Пробелы, Redux
 
-Just one last thing.
+Еще одна вещь.
 
 Теперь у нас должен быть парсер, способный анализировать некоторые XML, но он не очень ценит пробелы. Произвольный пробел должен быть разрешен между тегами, чтобы мы могли свободно вставлять разрывы строк и тому подобное между нашими тегами (и в принципе, пробел должен быть разрешен между идентификаторами и литералами, как `< div / >`, но давайте пропустим это).
 
-We should be able to put together a quick combinator for that with no effort at
-this point.
+Мы должны быть в состоянии собрать быстрый комбинатор для этого без усилий на данный момент.
 
 ```rust
 fn whitespace_wrap<'a, P, A>(parser: P) -> impl Parser<'a, A>
@@ -1340,9 +1250,9 @@ fn element<'a>() -> impl Parser<'a, Element> {
 }
 ```
 
-### We're Finally There!
+### Мы наконец там!
 
-I think we did it! Let's write an integration test to celebrate.
+Я думаю, что мы сделали это! Давайте напишем интеграционный тест, чтобы отпраздновать.
 
 ```rust
 #[test]
@@ -1397,20 +1307,17 @@ fn mismatched_closing_tag() {
 
 Самое главное, теперь мы знаем, как комбинаторные синтаксические анализаторы работают с нуля. Никто не может остановить нас сейчас!
 
-### Victory Puppies
+### Щенки Победы
 
 <p class="gif"><img src="../../../originals/articles/parser-combinators/many-puppies.gif"></p>
 
-### Further Resources
+### Дополнительные ресурсы
 
 Прежде всего, я виновен в том, что объяснил вам монады в строго Rust выражениях, и я знаю, что Фил Уодлер был бы очень расстроен из-за меня, если бы я не указал вам на [его основную статью, в](https://homepages.inf.ed.ac.uk/wadler/papers/marktoberdorf/baastad.pdf) которой более подробно рассказывается о них. - включая его отношение к комбинаторам синтаксического анализа.
 
 Идеи в этой статье очень похожи на идеи, библиотеку комбинаторов [`pom`](https://crates.io/crates/pom), и, если вы захотите работать с комбинаторными парсерами в одном стиле, я очень рекомендую это.
 
-The state of the art in Rust parser combinators is still
-[`nom`](https://crates.io/crates/nom), to the extent that the aforementioned
-`pom` is clearly derivatively named (and there's no higher praise than that),
-but it takes a very different approach from what we've built here today.
+Уровень техники в Rust parin комбинаторах по-прежнему является [`nom`](https://crates.io/crates/nom) в той степени, в которой вышеупомянутый `pom` явно назван производным (и нет более высокой похвалы, чем этот), но он использует совершенно иной подход по сравнению с тем, что мы создали здесь сегодня.
 
 Другой популярной библиотекой комбинаторных синтаксических анализаторов для Rust является [`combine`](https://crates.io/crates/combine), которое также стоит посмотреть.
 
@@ -1418,14 +1325,12 @@ but it takes a very different approach from what we've built here today.
 
 Наконец, я обязан своим первым знакомством с комбинаторными парсерами книге Грэма Хаттона «[*Программирование на Haskell*](http://www.cs.nott.ac.uk/%7Epszgmh/pih.html)», которая очень полезна для чтения и имеет положительный побочный эффект, так как обучает вас языку Haskell.
 
-## Licence
+## Лицензия
 
-This work is copyright Bodil Stokke and is licensed under the Creative Commons
-Attribution-NonCommercial-ShareAlike 4.0 International Licence. To view a copy
-of this licence, visit http://creativecommons.org/licenses/by-nc-sa/4.0/.
+Это произведение защищено авторским правом Bodil Stokke и лицензировано в соответствии с международной лицензией Creative Commons Attribution-NonCommercial-ShareAlike 4.0. Чтобы просмотреть копию этой лицензии, посетите http://creativecommons.org/licenses/by-nc-sa/4.0/.
 
-## Footnotes
+## Сноски
 
-<a name="footnote1">1</a>: He isn't really your uncle.
+<a name="footnote1">1</a> : Он на самом деле не твой дядя.
 
-<a name="footnote2">2</a>: Please don't be that person at parties.
+<a name="footnote2">2</a> : Пожалуйста, не будьте тем человеком на вечеринках.
