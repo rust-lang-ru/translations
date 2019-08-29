@@ -1,27 +1,24 @@
 # Изучение комбинаторных парсеров с Rust
 
-*This article teaches the fundamentals of parser combinators to people who are
-already Rust programmers. It assumes no other knowledge, and will explain
-everything that isn't directly related to Rust, as well as a few of the more
-unexpected aspects of using Rust for this purpose. It will not teach you Rust if
-you don't already know it, and, if so, it probably also won't teach you parser
-combinators very well. If you would like to learn Rust, I recommend the book
-[The Rust Programming Language](https://doc.rust-lang.org/book/).*
+*Эта статья учит основам комбинаторных парсеров людей, которые
+уже знакомы с Rust. Предполагается, что никаких других знаний не требуется, а всё, что не имеет
+прямного отношения к Rust, а также некоторые неожиднные аспекты его использования,
+будут объяснены. Эта статья не поможет вам выучить Rust, если вы его ещё не знаете, и в этом случае, вы, вероятнее всего, не поймёте комбинаторные парсеры хорошо. Если вы хотите изучить Rust, я рекомендую книгу 
+["Язык программирования Rust"](https://doc.rust-lang.org/book/).*
 
 <!-- more -->
 
 ### С точки зрения новичка
 
-There comes a point in the life of every programmer when they find themselves in
-need of a parser.
+В жизни каждого программиста наступает момент, когда он нуждается в парсере.
 
-The novice programmer will ask, "what is a parser?"
+Начинающий программист спросит: "Что такое парсер?"
 
 Программист среднего уровня скажет: «Это просто, я напишу регулярное выражение».
 
 Мастер-программист скажет: «Отойди, я знаю lex и yacc».
 
-The novice has the right idea.
+Новичок мыслит правильнее всех.
 
 Не то, чтобы регулярные выражения не хороши. (Но, пожалуйста, не пытайтесь писать
 сложный парсер как регулярное выражение.) Не то, чтобы не было никакой радости
