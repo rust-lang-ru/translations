@@ -9,4 +9,4 @@ branches:
 before_script:
   - npm install yaspeller -g
 script:
-  - yaspeller --only-errors -c common-configs/.yaspellerrc ru/**/*.md
+  - find ./ru -iname '*.md' | xargs yaspeller -c common-configs/.yaspellerrc
