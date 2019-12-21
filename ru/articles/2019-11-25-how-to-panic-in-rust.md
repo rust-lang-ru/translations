@@ -44,7 +44,7 @@ I think the best place to start are the interfaces controlling the two indirecti
 Moreover, `core::panic!` and `std::panic!` are *not* the same; as we will see, they take very different code paths.
 libcore and libstd each implement their own way to cause panics:
 
-- libcore's `core::panic!` does very little, it basically just delegates to the panic *handler* immediately.
+- `core::panic!` из libcore очень мал: он всего лишь немедленно делегирует панику *обработчику*.
 
 - libstd `std::panic!` («нормальный» макрос `panic!` в Rust) запускает полнофункциональный механизм паники, который обеспечивает управляемый пользователем [*перехват* паники](https://doc.rust-lang.org/std/panic/fn.set_hook.html).
     Хук по умолчанию выведет сообщение о панике в stderr.
