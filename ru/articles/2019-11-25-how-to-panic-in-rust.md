@@ -25,7 +25,7 @@
 и оказывается, что паника в контексте `#[no_std]` требует совершенно другого пути к коду ... очень многое происходит.
 Что ещё хуже, [RFC, описывающий ловушки паники](https://github.com/rust-lang/rfcs/blob/master/text/1328-global-panic-handler.md), называет их «обработчик паники», но этот термин с тех пор был переопределён.
 
-I think the best place to start are the interfaces controlling the two indirections:
+Я думаю, что лучшее место для начала - это интерфейсы, управляющие двумя направлениями:
 
 - *Среда выполнения паники* используется libstd для управления тем, что происходит после того, как информация о панике была напечатана в stderr.
     Это определяется *стратегией* паники: либо мы прерываем (`-C panic=abort`), либо запускаем размотку стэка (`-C panic=unwind`).
@@ -41,8 +41,8 @@ I think the best place to start are the interfaces controlling the two indirecti
 (И помните, что есть также *перехватчики* паники, мы доберёмся до них.)
 Это происходит со мной все время.
 
-Moreover, `core::panic!` and `std::panic!` are *not* the same; as we will see, they take very different code paths.
-libcore and libstd each implement their own way to cause panics:
+Более того, `core::panic!` и `std::panic!` *не* одинаковы; как мы увидим, они используют совершенно разные пути кода.
+libcore и libstd каждый реализуют свой собственный способ вызвать панику:
 
 - `core::panic!` из libcore очень мал: он всего лишь немедленно делегирует панику *обработчику*.
 
@@ -50,9 +50,9 @@ libcore and libstd each implement their own way to cause panics:
     Хук по умолчанию выведет сообщение о панике в stderr.
     После того, как функция перехвата закончена, libstd делегирует  её обработчику паники *времени выполнения*.
 
-    libstd also provides a panic *handler* that calls the same machinery, so `core::panic!` also ends up here.
+    libstd также предоставляет *обработчик* паники, который вызывает тот же механизм, поэтому `core::panic!` также заканчивается здесь.
 
-Let us now look at these pieces in a bit more detail.
+Давайте теперь посмотрим на эти части более подробно.
 
 ## Паника во время выполнения программы
 
