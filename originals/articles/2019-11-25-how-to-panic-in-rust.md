@@ -71,13 +71,15 @@ On top of the panic *runtime* interface, libstd implements the default Rust pani
 #### `rust_panic_with_hook`
 
 The key function that almost everything passes through is [`rust_panic_with_hook`](https://github.com/rust-lang/rust/blob/7d761fe0462ba0f671a237d0bb35e3579b8ba0e8/src/libstd/panicking.rs#L435-L437):
-{% highlight rust %}
+
+```rust
 fn rust_panic_with_hook(
     payload: &mut dyn BoxMeUp,
     message: Option<&fmt::Arguments<'_>>,
     file_line_col: &(&str, u32, u32),
 ) -> !
-{% endhighlight %}
+```
+
 This function takes a panic source location, an optional unformatted panic message (see the [`fmt::Arguments`](https://doc.rust-lang.org/std/fmt/struct.Arguments.html) docs), and a payload.
 
 Its main job is to call whatever the current panic hook is.
