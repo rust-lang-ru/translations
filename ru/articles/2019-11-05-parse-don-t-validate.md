@@ -306,10 +306,6 @@ fn check_no_duplicate_keys<K: Eq, V>(xs: &[(K,V)]) -> HashMap<K,V> { ... }
 
 В заключение, я хотел бы заметить, что рефакторинг в стиле, который описан в статье, не всегда прост. Примеры которые я использовал - просты, но реальная жизнь зачастую куда менее прямолинейна. Даже люди, имеющие большой опыт в  type-driven проектировании, могут испытывать затруднения в выражении некоторых инвариантов в системе типов, так что не падайте духом, если у вас не получается решить проблему так, как вам хочется. Считайте эти принципы идеалом, к которому надо стремиться, а не строгому обязательному требованию. Всё что требуется - хотя бы попытаться.
 
-
-[Ghosts of Departed Proofs]: Technically, in Haskell, this ignores “bottoms,” constructions that can inhabit *any* value. These aren’t “real” values (unlike `null` in some other languages)—they’re things like infinite loops or computations that raise exceptions—and in idiomatic Haskell, we usually try to avoid them, so reasoning that pretends they don’t exist still has value. But don’t take my word for it—I’ll let Danielsson et al. convince you that [Fast and Loose Reasoning is Morally Correct](https://www.cs.ox.ac.uk/jeremy.gibbons/publications/fast+loose.pdf).
-[]: In fact, `Data.List.NonEmpty` already provides a `head` function with this type, but just for the sake of illustration, we’ll reimplement it ourselves.
-[]: Sometimes it is necessary to perform some kind of authorization before parsing user input to avoid denial of service attacks, but that’s okay: authorization should have a relatively small surface area, and it shouldn’t cause any significant modifications to the state of your system.
 [специалисты в области теоретико-языковой безопасности]: https://kataskeue.com/gdp.pdf
 [The Seven Turrets of Babel: A Taxonomy of LangSec Errors and How to Expunge Them]: https://hackage.haskell.org/package/aeson
 [я рассуждал в Твиттере]: https://hackage.haskell.org/package/optparse-applicative
