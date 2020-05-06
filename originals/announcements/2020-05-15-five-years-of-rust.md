@@ -30,7 +30,7 @@ resource for anyone looking to learn and understand one of the hardest aspects
 of the language.
 
 **[1.4] — Windows MSVC Tier 1 Support** The first tier 1 platform promotion was
-bringing native support for 64-bit Windows using the Microsoft Visual Compiler
+bringing native support for 64-bit Windows using the Microsoft Visual C++ toolchain
 (MSVC). Before 1.4 you needed to also have MinGW (a third party GNU environment)
 installed in order to use and compile your Rust programs. Rust's Windows support
 is one of the biggest improvements these past five years. Just recently
@@ -49,7 +49,7 @@ plugins that the community built and shared on crates.io!
 #### 2016
 
 **[1.6] — Libcore** Libcore is a subset of the standard library that only
-contains APIs that don't require allocation or operating system level feature
+contains APIs that don't require allocation or operating system level features
 . The stabilisation of libcore brought the ability to compile Rust was one of
 the first major steps towards Rust's support for embedded systems development.
 
@@ -106,7 +106,7 @@ library rustc would have to re-compile all of the code. Now rustc is a lot
 smarter about caching as much as possible and only needing to re-generate
 what's needed.
 
-**[1.26] — Existential Types** The addition of `impl Trait` gives you expressive
+**[1.26] — impl Trait** The addition of `impl Trait` gives you expressive
 dynamic APIs with the benefits and performance of static dispatch.
 
 **[1.28] — Global Allocators** Previously you were restricted to using the
@@ -128,8 +128,8 @@ libraries built with different editions to seamlessly work together.
   use modules.
 - **Const Functions** Const functions allow you to run and evaluate Rust code
   at compile time.
-- **Rustfmt** A new code formatting tool built specifically for Rust.
-- **Clippy** Rust's linter for catching common mistakes. Clippy makes it a lot
+- **Rustfmt 1.0** A new code formatting tool built specifically for Rust.
+- **Clippy 1.0** Rust's linter for catching common mistakes. Clippy makes it a lot
   easier to make sure that your code is not only safe but correct.
 - **Rustfix** With all the syntax changes, we knew we wanted to provide the
   tooling to make the transition as easy as possible. Now when changes are
@@ -396,7 +396,7 @@ To learn more, run the command again with --verbose.
 
 ## Quotes from the teams
 Of course we can't cover every change that has happened. So we reached out and
-asked some of our leads what changes their most proud of:
+asked some of our teams what changes they are most proud of:
 
 > For rustdoc, the big things were:
 > * The automatically generated documentation for blanket implementations
@@ -450,6 +450,15 @@ asked some of our leads what changes their most proud of:
 >
 > — Ralf Jung ([Miri])
 
+> If I had to pick one thing I'm most proud of, it was the work on non-lexical
+> lifetimes (NLL). It's not only because I think it made a big difference in
+> the usability of Rust, but also because of the way that we implemented it by
+> forming the NLL working group. This working group brought in a lot of great
+> contributors, many of whom are still working on the compiler today. Open
+> source at its best!
+>
+> — Niko Matsakis ([Language])
+
 [stacked borrows]: https://github.com/rust-lang/unsafe-code-guidelines/blob/master/wip/stacked-borrows.md
 [find and fix bugs]:  https://github.com/rust-lang/miri/#bugs-found-by-miri
 
@@ -458,6 +467,7 @@ asked some of our leads what changes their most proud of:
 [ewg]: https://www.rust-lang.org/governance/wgs/embedded
 [release]: https://www.rust-lang.org/governance/teams/release
 [miri]: https://www.rust-lang.org/governance/teams/compiler#miri
+[language]: https://www.rust-lang.org/governance/teams/lang
 
 
 ## The Community
@@ -469,17 +479,17 @@ statistics on just how much Rust has grown.
 
 - Rust has been voted ["Most Loved Programming"][mlp] every year in the past
   four Stack Overflow developer surveys since it went 1.0.
-- We have served over 160TB of different versions of the compiler, tooling, and
-  documentation in April alone!
-- In the same month we served over 22TB of crates to 227 million
+- We have served over 2.25 Petabytes (1PB = 1,000 TB) of different versions of the
+  compiler, tooling, and documentation this year alone!
+- In the same time we have served over 170TB of crates to roughly 1.8 billion
   requests on crates.io.
 
 [mlp]: https://insights.stackoverflow.com/survey/2019#most-loved-dreaded-and-wanted
 
 When Rust turned turned 1.0 you could count the number of companies that were
 using it in production on one hand. Today, it is being used by hundreds of
-tech companies with some of the largest tech companies such as Apple, Dropbox,
-Facebook, Google, and Microsoft choosing to use Rust for its performance,
+tech companies with some of the largest tech companies such as Apple, Amazon,
+Dropbox, Facebook, Google, and Microsoft choosing to use Rust for its performance,
 reliability, and productivity in their projects.
 
 ## Conclusion
