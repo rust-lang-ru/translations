@@ -7,7 +7,7 @@ author: The Rust Core Team
 With all that's going on in the world you'd be forgiven for forgetting that as
 of today, it has been five years since we released 1.0 in 2015! Rust has changed
 a lot these past five years, so we wanted reflect back on all of our
-contributors' work over these past five years.
+contributors' work since the stabilization of the language.
 
 **If this is the first time you're reading about Rust:** Rust is a general
 purpose programming language empowering everyone to build reliable and efficient
@@ -24,7 +24,7 @@ their time and expertise to help make Rust what it is.
 release of Rust, and it's hard to imagine that there was a short time where
 Rust had no parallel code generation at all.
 
-**[1.3]— The Rustnomicon** Our first release of the fantastic "Rustnomicon", a
+**[1.3] — The Rustnomicon** Our first release of the fantastic "Rustnomicon", a
 book that explores Unsafe Rust and its surrounding topics has become a great
 resource for anyone looking to learn and understand one of the hardest aspects
 of the language.
@@ -49,9 +49,10 @@ plugins that the community built and shared on crates.io!
 #### 2016
 
 **[1.6] — Libcore** Libcore is a subset of the standard library that only
-contains APIs that don't require allocation or operating system level features
-. The stabilisation of libcore brought the ability to compile Rust was one of
-the first major steps towards Rust's support for embedded systems development.
+contains APIs that don't require allocation or operating system level features.
+The stabilisation of libcore brought the ability to compile Rust with no allocation
+or operating system dependency was one of the first major steps towards Rust's
+support for embedded systems development.
 
 **[1.10] — C ABI Dynamic Libraries** The `cdylib` crate type allows Rust to be
 compiled as a C dynamic library, enabling you to embed your Rust projects in
@@ -403,7 +404,7 @@ asked some of our teams what changes they are most proud of:
 > * The search itself and its optimizations (last one being to convert it into JSON)
 > * The possibility to test more accurately doc code blocks "compile_fail,
 >   should_panic, allow_fail"
-> * Supporting blanket impls.
+> * Doc tests are now generated as their own seperate binaries.
 >
 > — Guillaume Gomez ([rustdoc])
 
@@ -433,7 +434,7 @@ asked some of our teams what changes they are most proud of:
 > excellent job of managing to scale to the increasing traffic on issue
 > trackers, PRs being filed, etc.
 >
-> — Mark Rousskov ([Release team][release])
+> — Mark Rousskov ([Release][release])
 
 
 > Within the last 3 years we managed to turn Miri from an experimental
