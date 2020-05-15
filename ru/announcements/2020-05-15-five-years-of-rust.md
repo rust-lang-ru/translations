@@ -12,7 +12,7 @@ author: "The Rust Core Team"
 который обладает средствами, позволяющими строить надёжное и эффективное
 программное обеспечение. Rust может быть использован в любой области: от ядра
 вашей операционной системы до вашего следующего web-приложения. Этот язык
-простроен полностью участниками открытого многоликого сообщества, в основном
+полностью простроен участниками открытого многоликого сообщества, в основном
 волонтёрами, кто щедро делился своим временем и знаниями для того, чтобы помочь
 сделать Rust таким, какой он есть сейчас.
 
@@ -45,15 +45,15 @@ Rust. Поддержка Windows стала одним из самых боль�
 [1.4]:https://blog.rust-lang.org/2015/10/29/Rust-1.4.html
 [анонсировала публичный пре-релиз официальной поддержки Rust для WinRT API!]:https://blogs.windows.com/windowsdeveloper/2020/04/30/rust-winrt-public-preview/
 
-**[1.5](https://blog.rust-lang.org/2015/12/10/Rust-1.5.html) — Cargo Install:** добавление возможности собирать
-исполняемые файлы с помощью компилятора Rust вместе с поддержкой предустановленных
+**[1.5](https://blog.rust-lang.org/2015/12/10/Rust-1.5.html) — Cargo Install:** добавлена
+поддержка возможности собирки
+исполняемых файлов с помощью компилятора Rust вместе с поддержкой предустановленных
 дополнений cargo породило целую экосистему приложений, утилит и инструментов
 для разработчиков, которые сообщество обожает и от которых зависит. Cargo теперь
 поддерживает довольно много команд, которые сначала были просто плагинами,
 сделанными участниками сообщества и выложенными на crates.io!
 
 #### 2016
-
 
 **[1.6](https://blog.rust-lang.org/2016/01/21/Rust-1.6.html) — Libcore:** `libcore` - это подмножество
 стандартной библиотеки, содержащее только API, которое не требует функций выделения
@@ -71,8 +71,7 @@ Rust для разработки встраиваемых систем.
 
 **[1.12](https://blog.rust-lang.org/2016/09/29/Rust-1.12.html) - Cargo Workspaces:** позволяют
 организовать несколько проектов Rust и совместно использовать один и тот же lock-файл.
-Рабочие пространства были неоценимы при создании крупных многоуровневых проектов
-крейтами.
+Рабочие пространства были неоценимы при создании крупных многоуровневых проектов.
 
 **[1.13](https://blog.rust-lang.org/2016/11/10/Rust-1.13.html) — Оператор `Try`:** первым
 основным синтаксическим изменением был оператор `?` или оператор "Try". Он позволяет легко
@@ -100,7 +99,7 @@ expression?.method()?;           // New
 использовать макросы из библиотек `serde` или `diesel`.
 
 **[1.17](https://blog.rust-lang.org/2017/04/27/Rust-1.17.html) — Rustbuild:** одним из самых больших
-улучшений для наших помощников в разработке языка стал переход от начальной системы
+улучшений для наших контрибьюторов в разработке языка стал переход от начальной системы
 сборки на основе `make` на использование Cargo. Благодаря этому участникам и новичкам
 `rust-lang/rust` стало намного проще создавать и вносить свой вклад в проект.
 
@@ -152,8 +151,8 @@ expression?.method()?;           // New
 
 **[1.34](https://blog.rust-lang.org/2019/04/11/Rust-1.34.0.html) — Альтернативный реестр крейтов:** Поскольку
 Rust всё больше и больше используется в производстве, возникает большая потребность
-в возможности размещении и использовании проектов в не публичных пространствах. В то время
-как в Cargo всегда разрешены зависимости из git-репозиториев, с помощью альтернативных
+в возможности размещении и использовании проектов в не публичных пространствах. Вместе с этим
+в Cargo всегда разрешены зависимости из git-репозиториев. С помощью альтернативных
 реестров ваша организация может легко создать и делиться своим собственным реестром
 крейтов, которые можно использовать в ваших проектах, как если бы они были на crates.io.
 
@@ -185,14 +184,14 @@ Rust всё больше и больше используется в произ�
 ```rust
 use std::io::Write;
 
-fn trait_obj(w: &amp;Write) {
+fn trait_obj(w: &Write) {
     generic(w);
 }
 
-fn generic&lt;W: Write&gt;(_w: &amp;W) {}
+fn generic<W: Write>(_w: &W) {}
 ```
 
-<div>  1.2.0 Error Message </div>
+Сообщение об ошибке в 1.2.0
 
 ```
    Compiling error-messages v0.1.0 (file:///Users/usr/src/rust/error-messages)
@@ -210,23 +209,23 @@ To learn more, run the command again with --verbose.
 
 <img alt="A terminal screenshot of the 1.2.0 error message." data-md-type="image" src="https://github.com/ruRust/translations/blob/master/images/2020-05-15-five-years-of-rust/trait-error-1.2.0.png?raw=true">
 
-<div>  1.43.0 Error Message </div>
+Сообщение об ошибке в 1.43.0
 
 ```
    Compiling error-messages v0.1.0 (/Users/ep/src/rust/error-messages)
 error[E0277]: the size for values of type `dyn std::io::Write` cannot be known at compilation time
- --&gt; src/lib.rs:6:13
+ --> src/lib.rs:6:13
   |
 6 |     generic(w);
   |             ^ doesn't have a size known at compile-time
 ...
-9 | fn generic&lt;W: Write&gt;(_w: &amp;W) {}
+9 | fn generic<W: Write>(_w: &W) {}
   |    ------- -       - help: consider relaxing the implicit `Sized` restriction: `+  ?Sized`
   |            |
   |            required by this bound in `generic`
   |
   = help: the trait `std::marker::Sized` is not implemented for `dyn std::io::Write`
-  = note: to learn more, visit &lt;https://doc.rust-lang.org/book/ch19-04-advanced-types.html#dynamically-sized-types-and-the-sized-trait&gt;
+  = note: to learn more, visit <https://doc.rust-lang.org/book/ch19-04-advanced-types.html#dynamically-sized-types-and-the-sized-trait>
 
 error: aborting due to previous error
 
@@ -247,27 +246,27 @@ fn main() {
 }
 ```
 
-<div>  1.2.0 Error Message </div>
+Сообщение об ошибке в 1.2.0
 
 ```
    Compiling error-messages v0.1.0 (file:///Users/ep/src/rust/error-messages)
-src/lib.rs:3:24: 3:43 error: the trait `core::ops::FnMut&lt;(char,)&gt;` is not implemented for the type `collections::string::String` [E0277]
+src/lib.rs:3:24: 3:43 error: the trait `core::ops::FnMut<(char,)>` is not implemented for the type `collections::string::String` [E0277]
 src/lib.rs:3     println!("{:?}", s.find("".to_owned()));
                                     ^~~~~~~~~~~~~~~~~~~
 note: in expansion of format_args!
-&lt;std macros&gt;:2:25: 2:56 note: expansion site
-&lt;std macros&gt;:1:1: 2:62 note: in expansion of print!
-&lt;std macros&gt;:3:1: 3:54 note: expansion site
-&lt;std macros&gt;:1:1: 3:58 note: in expansion of println!
+<std macros>:2:25: 2:56 note: expansion site
+<std macros>:1:1: 2:62 note: in expansion of print!
+<std macros>:3:1: 3:54 note: expansion site
+<std macros>:1:1: 3:58 note: in expansion of println!
 src/lib.rs:3:5: 3:45 note: expansion site
-src/lib.rs:3:24: 3:43 error: the trait `core::ops::FnOnce&lt;(char,)&gt;` is not implemented for the type `collections::string::String` [E0277]
+src/lib.rs:3:24: 3:43 error: the trait `core::ops::FnOnce<(char,)>` is not implemented for the type `collections::string::String` [E0277]
 src/lib.rs:3     println!("{:?}", s.find("".to_owned()));
                                     ^~~~~~~~~~~~~~~~~~~
 note: in expansion of format_args!
-&lt;std macros&gt;:2:25: 2:56 note: expansion site
-&lt;std macros&gt;:1:1: 2:62 note: in expansion of print!
-&lt;std macros&gt;:3:1: 3:54 note: expansion site
-&lt;std macros&gt;:1:1: 3:58 note: in expansion of println!
+<std macros>:2:25: 2:56 note: expansion site
+<std macros>:1:1: 2:62 note: in expansion of print!
+<std macros>:3:1: 3:54 note: expansion site
+<std macros>:1:1: 3:58 note: in expansion of println!
 src/lib.rs:3:5: 3:45 note: expansion site
 error: aborting due to 2 previous errors
 Could not compile `error-messages`.
@@ -277,21 +276,21 @@ To learn more, run the command again with --verbose.
 
 <img alt="A terminal screenshot of the 1.2.0 error message." data-md-type="image" src="https://github.com/ruRust/translations/blob/master/images/2020-05-15-five-years-of-rust/help-error-1.2.0.png?raw=true">
 
-<div>  1.43.0 Error Message </div>
+Сообщение об ошибке в 1.43.0
 
 ```
    Compiling error-messages v0.1.0 (/Users/ep/src/rust/error-messages)
-error[E0277]: expected a `std::ops::FnMut&lt;(char,)&gt;` closure, found `std::string::String`
- --&gt; src/lib.rs:3:29
+error[E0277]: expected a `std::ops::FnMut<(char,)>` closure, found `std::string::String`
+ --> src/lib.rs:3:29
   |
 3 |     println!("{:?}", s.find("".to_owned()));
   |                             ^^^^^^^^^^^^^
   |                             |
-  |                             expected an implementor of trait `std::str::pattern::Pattern&lt;'_&gt;`
-  |                             help: consider borrowing here: `&amp;"".to_owned()`
+  |                             expected an implementor of trait `std::str::pattern::Pattern<'_>`
+  |                             help: consider borrowing here: `&"".to_owned()`
   |
-  = note: the trait bound `std::string::String: std::str::pattern::Pattern&lt;'_&gt;` is not satisfied
-  = note: required because of the requirements on the impl of `std::str::pattern::Pattern&lt;'_&gt;` for `std::string::String`
+  = note: the trait bound `std::string::String: std::str::pattern::Pattern<'_>` is not satisfied
+  = note: required because of the requirements on the impl of `std::str::pattern::Pattern<'_>` for `std::string::String`
 
 error: aborting due to previous error
 
@@ -308,13 +307,13 @@ To learn more, run the command again with --verbose.
 ```rust
 fn main() {
     let mut x = 7;
-    let y = &amp;mut x;
+    let y = &mut x;
 
     println!("{} {}", x, y);
 }
 ```
 
-<div>  1.2.0 Error Message </div>
+Сообщение об ошибке в 1.2.0
 
 ```
    Compiling error-messages v0.1.0 (file:///Users/ep/src/rust/error-messages)
@@ -322,18 +321,18 @@ src/lib.rs:5:23: 5:24 error: cannot borrow `x` as immutable because it is also b
 src/lib.rs:5     println!("{} {}", x, y);
                                    ^
 note: in expansion of format_args!
-&lt;std macros&gt;:2:25: 2:56 note: expansion site
-&lt;std macros&gt;:1:1: 2:62 note: in expansion of print!
-&lt;std macros&gt;:3:1: 3:54 note: expansion site
-&lt;std macros&gt;:1:1: 3:58 note: in expansion of println!
+<std macros>:2:25: 2:56 note: expansion site
+<std macros>:1:1: 2:62 note: in expansion of print!
+<std macros>:3:1: 3:54 note: expansion site
+<std macros>:1:1: 3:58 note: in expansion of println!
 src/lib.rs:5:5: 5:29 note: expansion site
 src/lib.rs:3:18: 3:19 note: previous borrow of `x` occurs here; the mutable borrow prevents subsequent moves, borrows, or modification of `x` until the borrow ends
-src/lib.rs:3     let y = &amp;mut x;
+src/lib.rs:3     let y = &mut x;
                               ^
 src/lib.rs:6:2: 6:2 note: previous borrow ends here
 src/lib.rs:1 fn main() {
 src/lib.rs:2     let mut x = 7;
-src/lib.rs:3     let y = &amp;mut x;
+src/lib.rs:3     let y = &mut x;
 src/lib.rs:4
 src/lib.rs:5     println!("{} {}", x, y);
 src/lib.rs:6 }
@@ -346,14 +345,14 @@ To learn more, run the command again with --verbose.
 
 <img alt="A terminal screenshot of the 1.2.0 error message." data-md-type="image" src="https://github.com/ruRust/translations/blob/master/images/2020-05-15-five-years-of-rust/borrow-error-1.2.0.png?raw=true">
 
-<div data-md-type="block_html">  1.43.0 Error Message </div>
+Сообщение об ошибке в 1.43.0
 
 ```
    Compiling error-messages v0.1.0 (/Users/ep/src/rust/error-messages)
 error[E0502]: cannot borrow `x` as immutable because it is also borrowed as mutable
- --&gt; src/lib.rs:5:23
+ --> src/lib.rs:5:23
   |
-3 |     let y = &amp;mut x;
+3 |     let y = &mut x;
   |             ------ mutable borrow occurs here
 4 |
 5 |     println!("{} {}", x, y);
@@ -398,7 +397,7 @@ To learn more, run the command again with --verbose.
 > 
 > — Daniel Egger ([Embedded WG](https://www.rust-lang.org/governance/wgs/embedded))
 
-> Команда релизов работала только с (примерно) начала 2018 года, но даже за это время 
+> Команда релизов работала только с начала 2018 года, но даже за это время 
 > мы получили ~ 40000 коммитов только в `rust-lang/rust` без каких-либо существенных 
 > регрессий в стабильной версии.
 > Учитывая, как быстро мы улучшаем компилятор и стандартные библиотеки, я думаю, что 
@@ -460,7 +459,7 @@ To learn more, run the command again with --verbose.
 произошли с 2015 года. Какими были ваши любимые изменения или новые любимые проекты 
 Rust? Не стесняйтесь размещать свой ответ и обсуждение на [нашем форуме Discourse].
 
-[нашем форуме Discourse]:link
+[нашем форуме Discourse]:https://users.rust-lang.org/t/five-years-of-rust/42661
 
 Наконец, мы хотели бы поблагодарить всех кто внёс свой вклад в Rust, независимо от 
 того, добавили ли вы новую функцию или исправили опечатку, ваша работа сделала 
