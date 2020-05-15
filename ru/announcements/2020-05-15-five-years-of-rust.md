@@ -191,7 +191,7 @@ fn trait_obj(w: &Write) {
 fn generic<W: Write>(_w: &W) {}
 ```
 
-Сообщение об ошибке в 1.2.0
+<spoiler title="Сообщение об ошибке в 1.2.0">
 
 ```
    Compiling error-messages v0.1.0 (file:///Users/usr/src/rust/error-messages)
@@ -207,9 +207,11 @@ Could not compile `error-messages`.
 To learn more, run the command again with --verbose.
 ```
 
+</spoiler>
+
 <img alt="A terminal screenshot of the 1.2.0 error message." data-md-type="image" src="https://github.com/ruRust/translations/blob/master/images/2020-05-15-five-years-of-rust/trait-error-1.2.0.png?raw=true">
 
-Сообщение об ошибке в 1.43.0
+<spoiler title="Сообщение об ошибке в 1.43.0">
 
 ```
    Compiling error-messages v0.1.0 (/Users/ep/src/rust/error-messages)
@@ -235,6 +237,8 @@ error: could not compile `error-messages`.
 To learn more, run the command again with --verbose.
 ```
 
+</spoiler>
+
 <img alt="A terminal screenshot of the 1.43.0 error message." data-md-type="image" src="https://github.com/ruRust/translations/blob/master/images/2020-05-15-five-years-of-rust/trait-error-1.43.0.png?raw=true">
 
 ##### Второй пример (помощь)
@@ -246,7 +250,7 @@ fn main() {
 }
 ```
 
-Сообщение об ошибке в 1.2.0
+<spoiler title="Сообщение об ошибке в 1.2.0">
 
 ```
    Compiling error-messages v0.1.0 (file:///Users/ep/src/rust/error-messages)
@@ -274,9 +278,11 @@ Could not compile `error-messages`.
 To learn more, run the command again with --verbose.
 ```
 
+</spoiler>
+
 <img alt="A terminal screenshot of the 1.2.0 error message." data-md-type="image" src="https://github.com/ruRust/translations/blob/master/images/2020-05-15-five-years-of-rust/help-error-1.2.0.png?raw=true">
 
-Сообщение об ошибке в 1.43.0
+<spoiler title="Сообщение об ошибке в 1.43.0">
 
 ```
    Compiling error-messages v0.1.0 (/Users/ep/src/rust/error-messages)
@@ -300,6 +306,8 @@ error: could not compile `error-messages`.
 To learn more, run the command again with --verbose.
 ```
 
+</spoiler>
+
 <img alt="A terminal screenshot of the 1.43.0 error message." data-md-type="image" src="https://github.com/ruRust/translations/blob/master/images/2020-05-15-five-years-of-rust/help-error-1.43.0.png?raw=true">
 
 ##### Третий пример (Проверка заимствований)
@@ -313,7 +321,7 @@ fn main() {
 }
 ```
 
-Сообщение об ошибке в 1.2.0
+<spoiler title="Сообщение об ошибке в 1.2.0">
 
 ```
    Compiling error-messages v0.1.0 (file:///Users/ep/src/rust/error-messages)
@@ -343,9 +351,11 @@ Could not compile `error-messages`.
 To learn more, run the command again with --verbose.
 ```
 
+</spoiler>
+
 <img alt="A terminal screenshot of the 1.2.0 error message." data-md-type="image" src="https://github.com/ruRust/translations/blob/master/images/2020-05-15-five-years-of-rust/borrow-error-1.2.0.png?raw=true">
 
-Сообщение об ошибке в 1.43.0
+<spoiler title="Сообщение об ошибке в 1.43.0">
 
 ```
    Compiling error-messages v0.1.0 (/Users/ep/src/rust/error-messages)
@@ -367,6 +377,8 @@ error: could not compile `error-messages`.
 
 To learn more, run the command again with --verbose.
 ```
+
+</spoiler>
 
 <img alt="A terminal screenshot of the 1.43.0 error message." src="https://github.com/ruRust/translations/blob/master/images/2020-05-15-five-years-of-rust/borrow-error-1.43.0.png?raw=true">
 
