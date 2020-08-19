@@ -46,14 +46,14 @@ Mozilla была и продолжает восторгаться от возм�
 [с выпуском Rust 1.0]: https://blog.rust-lang.org/2015/05/15/Rust-1.0.html
 [Mozilla Research]: https://research.mozilla.org/
 [2006]: https://github.com/graydon/rust-prehistory/commit/b0fd440798ab3cfb05c60a1a1bd2894e1618479e
-[задуман 2010]: https://github.com/rust-lang/rust/commit/c01efc669f09508b55eced32d3c88702578a7c3e
+[задуман в 2010]: https://github.com/rust-lang/rust/commit/c01efc669f09508b55eced32d3c88702578a7c3e
 [в каталоге талантов Mozilla]: https://talentdirectory.mozilla.org/
 [изучать идею создания независимого фонда Rust]: http://smallcultfollowing.com/babysteps/blog/2020/01/09/towards-a-rust-foundation/
 [выберет членов для создания группы]: https://www.rust-lang.org/governance/teams/core#project-foundation
 [foundation@rust-lang.org]: mailto:foundation@rust-lang.org
 [спонсорской странице]: https://www.rust-lang.org/sponsors
 [получении владения (ownership)]: https://doc.rust-lang.org/book/ch04-00-understanding-ownership.html
-[вносили свой вклад в Rust в своё личное время]: https://twitter.com/ManishEarth/status/1294023260770770944
+[вносили вклад в Rust в своё личное время]: https://twitter.com/ManishEarth/status/1294023260770770944
 [Discord]: https://blog.discord.com/why-discord-is-switching-from-go-to-rust-a190bbca2b1f
 [Cloudflare]: https://blog.cloudflare.com/enjoy-a-slice-of-quic-and-rust/
 [Figma]: https://www.figma.com/blog/rust-in-production-at-figma/
