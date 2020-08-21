@@ -2,7 +2,7 @@
 
 The Rust programming language doesn't just aim to be practical, it also aims to be useful for the people working with it. Not only does this improve productivity, it also helps learning the language! One of the features I want to pick out: the borrow checker of the Rust compiler. This feature helps to avoid a great number of memory related bugs by enforcing correct memory allocation and use of pointers. At the same time, it also seems to be the source for a lot of frustration. This is reflected in in a phrase we often see: "fighting the compiler".
 
-The reason why you can use the Rust compiler as your personal mentor when learning a core concept in Rust lies in the information, the error messages provide. I want to demonstrate this with a simple example about mutability and borrowing. You can try this yourself in this [playground](https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2018&amp;gist=208af39ba7facc50154027834691ee74).
+The reason why you can use the Rust compiler as your personal mentor when learning a core concept in Rust lies in the information, the error messages provide. I want to demonstrate this with a simple example about mutability and borrowing. You can try this yourself in this [playground](https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=208af39ba7facc50154027834691ee74).
 
 We define a variable `item` and bind a `String` containing the word *sausage* to it. A dog, Belka, comes along and wants to take bite of *sausage*. This is symbolized by the `String` being truncated.
 
@@ -62,11 +62,11 @@ The left over sausa lies in front of her.
 
 The mutation of the data behind the variable was successful.
 
-<hr>
+<hr />
 
 The compiler does not always offer this kind of specific help. Often the course of action to resolve an error depends on the characteristics and the purpose of your data and the goals of your program.
 
-Let's add another dog, Strelka, to the picture, who wants to eat the remains of the sausage. You can follow along in this [Playground](https://play.rust-lang.org/?version=stable&amp;mode=debug&amp;edition=2018&amp;gist=f8c6e55e62b90a8f3400198d3bd0a410).
+Let's add another dog, Strelka, to the picture, who wants to eat the remains of the sausage. You can follow along in this [Playground](https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=f8c6e55e62b90a8f3400198d3bd0a410).
 
 ```rust
 fn main() {
@@ -128,39 +128,45 @@ This is the point, where we reached a boundary of the compiler's guidance. We we
 Looking at our story: There is one sausage, which is partially eaten by one dog and then taken and fully eaten by a second dog.
 Cloning the data is out of the question because it would result in two identical sets of data, one for each dog. While it would be nice for the dogs to have a whole sausage each, this is not how the story goes. Speaking more abstract: Having copies of data in memory when it's not necessary is a waste of memory. If a set of data needs to be changed by several owners, making the changes to different copies of the data is not the same, as making changes to the original piece. Implementing the `Copy` trait would have also lead to cloning the data.
 
-For this program, actually transferring the ownership is not necessary, the dogs don't care whom the sausage belongs to, as long as they can have a piece of it, which makes a shared ownership unnecessary. So a mutable reference `&amp;mut` is the way to go:
+For this program, actually transferring the ownership is not necessary, the dogs don't care whom the sausage belongs to, as long as they can have a piece of it, which makes a shared ownership unnecessary. So a mutable reference `&mut` is the way to go:
 
 We change lines 10 and 15:
 
-<div class="highlight"><pre class="highlight rust">`<span class="k">fn</span> <span class="nf">belka_takes_bite_off</span><span class="p">(</span><span class="n">sausage</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="nb">String</span><span class="p">)</span> <span class="p">{</span>
+```rust
+fn belka_takes_bite_off(sausage: &mut String) {
+```
 
-`</pre></div><div class="highlight"><pre class="highlight rust">`<span class="k">fn</span> <span class="nf">strelka_takes_and_eats</span><span class="p">(</span><span class="n">sausage</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="nb">String</span><span class="p">)</span> <span class="p">{</span>
+```rust
+fn strelka_takes_and_eats(sausage: &mut String) {
 
-`</pre></div>
+
+```
+
 Running the program fails:
 
-<div class="highlight"><pre class="highlight plaintext">`   Compiling playground v0.0.1 (/playground)
+```
+   Compiling playground v0.0.1 (/playground)
 error[E0308]: mismatched types
- --&gt; src/main.rs:4:24
+ --> src/main.rs:4:24
   |
 4 |     belka_takes_bite_off(item);
   |                        ^^^^
   |                        |
-  |                        expected `&amp;mut std::string::String`, found
+  |                        expected `&mut std::string::String`, found
                            struct `std::string::String`
   |                        help: consider mutably borrowing here:
-                           `&amp;mut item`
+                           `&mut item`
 
 error[E0308]: mismatched types
- --&gt; src/main.rs:6:29
+ --> src/main.rs:6:29
   |
 6 |     strelka_takes_and_eats(item);
   |                             ^^^^
   |                             |
-  |                             expected `&amp;mut std::string::String`,
+  |                             expected `&mut std::string::String`,
                                 found struct `std::string::String`
   |                             help: consider mutably borrowing here:
-                                `&amp;mut item`
+                                `&mut item`
 
 error: aborting due to 2 previous errors
 
@@ -168,17 +174,22 @@ For more information about this error, try `rustc --explain E0308`.
 error: could not compile `playground`.
 
 To learn more, run the command again with --verbose.
-`</pre></div>When making the necessary changes to have mutable references to the item instead of transferring its ownership, beginners often stumble over the fact that `T` and `&amp;mut T` are two different types. But don't worry, the compiler is still helpful, and guides you through to getting the types right: We learn, that if a function expects a certain type, the call of the function needs to happen with that same type.
+```
 
-So we change the variable `item` to `&amp;mut item` in the function calls:
+When making the necessary changes to have mutable references to the item instead of transferring its ownership, beginners often stumble over the fact that `T` and `&mut T` are two different types. But don't worry, the compiler is still helpful, and guides you through to getting the types right: We learn, that if a function expects a certain type, the call of the function needs to happen with that same type.
 
-<div class="highlight"><pre class="highlight rust">`    <span class="nf">belka_takes_bite_off</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="n">item</span><span class="p">);</span>
-    <span class="nd">println!</span><span class="p">(</span><span class="s">"Strelka steals the left overs."</span><span class="p">);</span>
-    <span class="nf">strelka_takes_and_eats</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="n">item</span><span class="p">);</span>
-`</pre></div>
+So we change the variable `item` to `&mut item` in the function calls:
+
+```rust
+    belka_takes_bite_off(&mut item);
+    println!("Strelka steals the left overs.");
+    strelka_takes_and_eats(&mut item);
+```
+
 When learning Rust, it often is a back and forth, making changes, running the code, getting an error message, repeat. So the last changes we made are still not enough. Running the code yields us the next error message:
 
-<div class="highlight"><pre class="highlight plaintext">`   Compiling playground v0.0.1 (/playground)
+```
+   Compiling playground v0.0.1 (/playground)
 error[E0596]: cannot borrow `item` as mutable, as it is not declared
 as mutable
  --&gt; src/main.rs:4:24
@@ -186,7 +197,7 @@ as mutable
 2 |     let item = String::from("sausage");
   |         ---- help: consider changing this to be mutable: `mut item`
 3 |     println!("Belka finds a {} and takes a bite off of it.", item);
-4 |     belka_takes_bite_off(&amp;mut item);
+4 |     belka_takes_bite_off(&mut item);
   |                        ^^^^^^^^^ cannot borrow as mutable
 
 error[E0596]: cannot borrow `item` as mutable, as it is not declared
@@ -197,7 +208,7 @@ as mutable
   |         ---- help: consider changing this to be mutable:
                  `mut item`
 ...
-6 |     strelka_takes_and_eats(&amp;mut item);
+6 |     strelka_takes_and_eats(&mut item);
   |                             ^^^^^^^^^ cannot borrow as mutable
 
 error: aborting due to 2 previous errors
@@ -206,58 +217,53 @@ For more information about this error, try `rustc --explain E0596`.
 error: could not compile `playground`.
 
 To learn more, run the command again with --verbose.
-`</pre></div>We're already familiar with this error and the required mutability declaration is made quickly:
+```
 
-<div class="highlight"><pre class="highlight rust">`<span class="k">fn</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
-    <span class="k">let</span> <span class="k">mut</span> <span class="n">item</span> <span class="o">=</span> <span class="nn">String</span><span class="p">::</span><span class="nf">from</span><span class="p">(</span><span class="s">"sausage"</span><span class="p">);</span>
-    <span class="nd">println!</span><span class="p">(</span><span class="s">"Belka finds a {} and takes a bite off of it."</span><span class="p">,</span> <span class="n">item</span><span class="p">);</span>
-    <span class="nf">belka_takes_bite_off</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="n">item</span><span class="p">);</span>
-    <span class="nd">println!</span><span class="p">(</span><span class="s">"Strelka steals the left overs."</span><span class="p">);</span>
-    <span class="nf">strelka_takes_and_eats</span><span class="p">(</span><span class="o">&amp;</span><span class="k">mut</span> <span class="n">item</span><span class="p">);</span>
+We're already familiar with this error and the required mutability declaration is made quickly:
 
-<span class="p">}</span>
+```rust
+fn main() {
+    let mut item = String::from("sausage");
+    println!("Belka finds a {} and takes a bite off of it.", item);
+    belka_takes_bite_off(&mut item);
+    println!("Strelka steals the left overs.");
+    strelka_takes_and_eats(&mut item);
 
-<span class="k">fn</span> <span class="nf">belka_takes_bite_off</span><span class="p">(</span><span class="n">sausage</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="nb">String</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">sausage</span><span class="nf">.truncate</span><span class="p">(</span><span class="mi">5</span><span class="p">);</span>
-    <span class="nd">println!</span><span class="p">(</span><span class="s">"The left over {} lies in front of her."</span><span class="p">,</span> <span class="n">sausage</span><span class="p">);</span>
-<span class="p">}</span>
+}
 
-<span class="k">fn</span> <span class="nf">strelka_takes_and_eats</span><span class="p">(</span><span class="n">sausage</span><span class="p">:</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="nb">String</span><span class="p">)</span> <span class="p">{</span>
-    <span class="nd">println!</span><span class="p">(</span><span class="s">"Strelka swallows the {} in one bite."</span><span class="p">,</span> <span class="n">sausage</span><span class="p">);</span>
-    <span class="n">sausage</span><span class="nf">.clear</span><span class="p">();</span>
-    <span class="nd">println!</span><span class="p">(</span><span class="s">"Length of left over: {}"</span><span class="p">,</span> <span class="n">sausage</span><span class="nf">.len</span><span class="p">());</span>
-<span class="p">}</span>
+fn belka_takes_bite_off(sausage: &mut String) {
+    sausage.truncate(5);
+    println!("The left over {} lies in front of her.", sausage);
+}
 
-`</pre></div>Running the code finally gives us this output:
+fn strelka_takes_and_eats(sausage: &mut String) {
+    println!("Strelka swallows the {} in one bite.", sausage);
+    sausage.clear();
+    println!("Length of left over: {}", sausage.len());
+}
+```
 
-<div class="highlight"><pre class="highlight plaintext">`Belka finds a sausage and takes a bite off of it.
+Running the code finally gives us this output:
+
+```
+Belka finds a sausage and takes a bite off of it.
 The left over sausa lies in front of her.
 Strelka steals the left overs.
 Strelka swallows the sausa in one bite.
 Length of left over: 0
-`</pre></div>
+```
+
 This above mentioned going in circles of making minor changes, compiling and getting an error message can be frustrating. But even if it seems like the compiler is working against you, it provides you a railing: You're either given help directly or provided with the information you need to make a decision for your course of action. While this can feel like a fight at first, the compiler is actually your sparring partner that holds a focus mitt for you to practice your punches. You will get better with time, the frequency of getting error messages will get lower, because you learn, where you have to make references, where you have to declare mutability, when a memcopy is the better idea over referencing. With time, your punches will land.
 
 The compiler is a strict training partner. But in the end, even beginners have written a memory safe program, which is quite an achievement!
 
 Takeaways from this blog post:
 
-<ul>
  - Follow the help provided in the error message.
  - If no help is provided, run `rustc --explain` and read the output, before removing causes of errors to solve them.
  - The Rust compiler is your friendly sparring partner.
-</ul>
 
-<h2 id="stay-tuned-">Stay tuned …</h2>
+## Stay tuned …
 In the next part of this series, we will talk about the journey of learning Rust from a C/C++ background. We will speak about the rewards but also about the pitfalls to look out for.
 
-In the meantime, please consider signing up for our training <a href="http://eepurl.com/gYWZKr">newsletter</a> or enlisting us as <a href="https://ferrous-systems.com/training">trainers</a> for your team.
-</div>
-      <ul class="article__nav">
-        <li class="article__navitem article__navitem--previous">
-            <a href="/blog/probe-run/">Last Article</a>
-
-        <li class="article__navitem article__navitem--next">
-            <a href="/blog/run-rust-on-your-embedded-device-from-vscode/">Next Article</a>
-
-      </ul>
+In the meantime, please consider signing up for our training [newsletter](http://eepurl.com/gYWZKr) or enlisting us as [trainers](https://ferrous-systems.com/training) for your team.
