@@ -1,10 +1,10 @@
 # Изучение Rust: компилятор - ваш друг
 
-The Rust programming language doesn't just aim to be practical, it also aims to be useful for the people working with it. Not only does this improve productivity, it also helps learning the language! One of the features I want to pick out: the borrow checker of the Rust compiler. This feature helps to avoid a great number of memory related bugs by enforcing correct memory allocation and use of pointers. At the same time, it also seems to be the source for a lot of frustration. This is reflected in in a phrase we often see: "fighting the compiler".
+Язык программирования Rust нацелен не только на практичность, но и на удобство для работающих с ним людей. Это не только повышает продуктивность, но и помогает в изучении языка! Особенность, на которую я хочу обратить внимания - это анализатор заимствований компилятора Rust. Он позволяет устранить большое число ошибок, связанных с памятью, за счёт корректности распределения памяти и использования указателей. В то же время, он кажется источником разочарования, что отражено в фразе, которую мы часто видим: "борьба с компилятором".
 
-The reason why you can use the Rust compiler as your personal mentor when learning a core concept in Rust lies in the information, the error messages provide. I want to demonstrate this with a simple example about mutability and borrowing. You can try this yourself in this [playground](https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=208af39ba7facc50154027834691ee74).
+Причина, по который мы можете использовать компилятор Rust в качестве персонального ментора при изучении основных концепций языка, - это информация, содержащаяся в сообщениях об ошибках. Я хочу продемонстрировать это на простом примере о изменяемости и заимствовании. Вы также можете попробовать сделать это в [песочнице](https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=208af39ba7facc50154027834691ee74).
 
-We define a variable `item` and bind a `String` containing the word *sausage* to it. A dog, Belka, comes along and wants to take bite of *sausage*. This is symbolized by the `String` being truncated.
+Мы объявим переменную `item` и привяжем к ней строку, содержащую слово *sausage*. Собака, Белка, проходит рядом и хочет откусить сосиску. Мы обозначим это усечением строки.
 
 ```rust
 fn main() {
@@ -20,7 +20,7 @@ fn belka_takes_bite_off(sausage: String) {
 }
 ```
 
-We run the code, but get an error message:
+Мы запустим код, но получим ошибку:
 
 ```
  Compiling playground v0.0.1 (/playground)
@@ -42,32 +42,32 @@ error: could not compile `playground`.
 To learn more, run the command again with --verbose.
 ```
 
-The compiler gives us an error number `E0596` with the corresponding verbal message: `cannot borrow 'sausage' as mutable, as it is not declared as mutable`. The verbal message does not only name the operation that broke Rust's rules, it also provides a reason why this operation is not possible. Additionally to being very explicit about the error, the compiler specifies the line, where the faulty operation takes place. Within the line, the affected variable is underlined.
+Мы получили от компилятора ошибку с номером `E0596` и соответствующим сообщением: `cannot borrow 'sausage' as mutable, as it is not declared as mutable`. В сообщении содержится не только название операции, которая нарушила правила Rust, но и описывается причина, почему эта операция невозможна. Дополнительно, чтобы точнее дать более полную информацию об ошибке, копилятор  указывает строку, где расположена ошибочная операция и подчёркнута затронутая переменная.
 
-It does not stop there. We're also offered help: We should consider changing the parameter to be mutable. The place in the code, where this needs to happen is also underlined.
+Но сообщение не останавливается на этом. Нам также предлагают помощь: мы должны рассмотреть возможно сделать параметр изменяемым. Место в коде, где это можно сделать, также подчёркнуто.
 
-From this error message we learn that variables need to be declared as mutable, if you want to change the data behind them.
+Из этого сообщения об ошибку, мы узнали, что переменные должны быть объявлены изменяемыми, если мы хотим изменять связанные с ними значения.
 
-Thanks to the specific instruction, this error is fixed very quickly by changing line 8 the following way:
+Благодаря специальным инструкциям, эта ошибка исправляется достаточно быстро при помощи изменения 8 строки следующим образом:
 
 ```rust
 fn belka_takes_bite_off(mut sausage: String) {
 ```
 
-Running the program now yields this output:
+Запуск программы теперь выведет следующий текст:
 
 ```
 Belka finds a sausage and takes a bite off of it.
 The left over sausa lies in front of her.
 ```
 
-The mutation of the data behind the variable was successful.
+Изменение значения переменной прошло успешно.
 
 <hr>
 
-The compiler does not always offer this kind of specific help. Often the course of action to resolve an error depends on the characteristics and the purpose of your data and the goals of your program.
+Компилятор не всегда предлагает такого рода помощь. Часто действия, необходимые для устранения ошибки, зависят от характеристик и назначения ваших данных, а также целей программы.
 
-Let's add another dog, Strelka, to the picture, who wants to eat the remains of the sausage. You can follow along in this [Playground](https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=f8c6e55e62b90a8f3400198d3bd0a410).
+Давайте добавим в нашу картину другую собаку, Стрелку, которая хочет съесть оставшуюся часть сосиски. Вы можете делать всё в этой [песочнице](https://play.rust-lang.org/?version=stable&mode=debug&edition=2018&gist=f8c6e55e62b90a8f3400198d3bd0a410).
 
 ```rust
 fn main() {
@@ -91,7 +91,7 @@ fn strelka_takes_and_eats(mut sausage: String) {
 }
 ```
 
-When running this program, we get an error message: We tried to use a value that has already been moved.
+При запуске этой программы, мы получаем следующее сообщение об ошибке: мы пытаемся использовать значение, которое уже было перемещено.
 
 ```
  Compiling playground v0.0.1 (/playground)
@@ -116,21 +116,21 @@ error: could not compile `playground`.
 To learn more, run the command again with --verbose.
 ```
 
-This time, we learn again what caused the error: the Type used does not implement `Copy` trait, but we're not given help. This situation is tempting to just implement the `Copy` trait as a fix, as it is obviously missing. The missing implementation is the reason why your intended operation is causing an error. This does **not** imply that implementing the missing trait is the best way to fix your error!
+На этот раз мы снова узнаём что стало причиной ошибки: используемый тип не реализует трейт `Copy`, но мы не получаем помощи. В этой ситуации, чтобы исправить ошибку, возникает желание просто реализовать трейт `Copy` так как он явно отсутствует. Отсутствующая реализация является причиной, почему наша предполагаемая операция вызывает ошибку. Это {strong}не означает, что реализация отсутствующего трейта является лучим способом исправления ошибки!
 
-But the error message still can help us. Running `rustc --explain E0382` offers a more detailed explanation of this error and multiple approaches to solving the problem:
+Но сообщение об ошибке всё же может нам помочь. запустим `rustc --explain E0382`, чтобы получить более детальное описание этой ошибки и варианты решения проблемы:
 
-- using a mutable reference with `&mut`
-- implementing the `Clone` trait and duplicating the data
-- having a shared ownership with a reference counter.
+- использование изменяемой ссылки с `&mut`,
+- реализация трейта `Clone` и дублирование данных,
+- наличие совместного владения с подсчётом ссылок.
 
-This is the point, where we reached a boundary of the compiler's guidance. We were provided with the information, but the decision on the course of action is on us and usually results from the program itself.
+В этой точке мы достигли границ руководства компилятора. Нам предоставили информацию, но решение о дальнейших действиях остаётся за нами и обычно является результатом самой программы.
 
-Looking at our story: There is one sausage, which is partially eaten by one dog and then taken and fully eaten by a second dog. Cloning the data is out of the question because it would result in two identical sets of data, one for each dog. While it would be nice for the dogs to have a whole sausage each, this is not how the story goes. Speaking more abstract: Having copies of data in memory when it's not necessary is a waste of memory. If a set of data needs to be changed by several owners, making the changes to different copies of the data is not the same, as making changes to the original piece. Implementing the `Copy` trait would have also lead to cloning the data.
+Посмотрим на нашу историю: есть одна сосиска, которую частично ест одна собака, а затем её полностью съедает вторая. Клонирование данных входит за пределы вопроса, так как должны получиться два одинаковых набора данных, по одному на каждую собаку. Было бы не плохо, если бы каждая собака съела целую сосиску, но наша история идёт не так. Говоря абстрактнее: имя копию данных в памяти, когда это не необходимо, является тратой памяти. Если набор данных требует изменения несколькими владельцами, изменения на различных копиях данных - это не то же самое, что изменения оригинала. Реализация трейта `Copy` также привела бы к клонированию данных.
 
-For this program, actually transferring the ownership is not necessary, the dogs don't care whom the sausage belongs to, as long as they can have a piece of it, which makes a shared ownership unnecessary. So a mutable reference `&mut` is the way to go:
+Фактически, для этой программы, передавать владение не требуется: собакам не важно, кому принадлежит сосиска, пока у них может быть её часть, что делает совместное владение лишним. Так что нам нужна изменяемая ссылка `&mut`.
 
-We change lines 10 and 15:
+Мы изменили строки 10 и 15:
 
 ```rust
 fn belka_takes_bite_off(sausage: &mut String) {
@@ -138,8 +138,6 @@ fn belka_takes_bite_off(sausage: &mut String) {
 
 ```rust
 fn strelka_takes_and_eats(sausage: &mut String) {
-
-
 ```
 
 И сборка программы упала:
@@ -253,18 +251,18 @@ Strelka swallows the sausa in one bite.
 Length of left over: 0
 ```
 
-This above mentioned going in circles of making minor changes, compiling and getting an error message can be frustrating. But even if it seems like the compiler is working against you, it provides you a railing: You're either given help directly or provided with the information you need to make a decision for your course of action. While this can feel like a fight at first, the compiler is actually your sparring partner that holds a focus mitt for you to practice your punches. You will get better with time, the frequency of getting error messages will get lower, because you learn, where you have to make references, where you have to declare mutability, when a memcopy is the better idea over referencing. With time, your punches will land.
+Такое вышеупомянутое ходение по кругу из небольших изменений, компиляции и получения ошибок может расстраивать. Но даже если вам кажется, что компилятор работает против вас, он даёт вам решение: вам либо напрямую дают решение, либо предоставляют информацию, необходимую для принятия решения о дальнейших действиях. Поначалу это может показаться борьбой, но на самом деле компилятор - это ваш спарринг-партнёр, который держит перчатку, пока вы практикуете свои удары. Со временем, вы становитесь лучше, частота появления ошибок снижается, так как вы узнаёте где нужно сделать ссылку, где объявить мутабельность, когда memcopy более приемлемо, чем создание ссылки. Со временем, ваши удары будут сильнее.
 
-The compiler is a strict training partner. But in the end, even beginners have written a memory safe program, which is quite an achievement!
+Компилятор - строгий тренер. Но в конце даже новичок сможет создавать безопасную для памяти программу, что уже является достижением!
 
 Выводы из этого сообщения в блоге:
 
-- Follow the help provided in the error message.
-- If no help is provided, run `rustc --explain` and read the output, before removing causes of errors to solve them.
-- The Rust compiler is your friendly sparring partner.
+- следуйте справке, содержащейся в сообщении об ошибке,
+- если справки об ошибке нет, запустите `rustc --explain` и прочитайте вывод прежде чем исправить ошибку,
+- компилятор Rust - ваш дружелюбный спарринг-партнёр.
 
 ## Следите за обновлениями …
 
-In the next part of this series, we will talk about the journey of learning Rust from a C/C++ background. We will speak about the rewards but also about the pitfalls to look out for.
+В следующей части этой серии, мы поговорим о пути изучения Rust для разработчиков на C/C++. Мы поговорим о преимуществах и подводных камнях, на которые следует обратить внимание.
 
-In the meantime, please consider signing up for our training [newsletter](http://eepurl.com/gYWZKr) or enlisting us as [trainers](https://ferrous-systems.com/training) for your team.
+(реклама про тренинги и подписку)
