@@ -1,7 +1,7 @@
 ---
 title: Hello World!
 byline: Ashley Williams, Interim Executive Director, Core Team Member
-description: Announcing the Rust Foundation to the World
+description: Rust Foundation
 date: '2021-02-08'
 tags:
 - announcement
