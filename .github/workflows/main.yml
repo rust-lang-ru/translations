@@ -3,6 +3,7 @@ on:
   push:
     branches:
     - master
+    - spellchecking_test
   pull_request:
 
 jobs:
