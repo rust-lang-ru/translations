@@ -15,8 +15,16 @@ jobs:
       with:
         repository: rust-lang-ru/common-configs
         path: common-configs
-    - run: npm install yaspeller
-    - run: git show -m --name-only -1 --format="format:" | grep --color=never -i '.md' | xargs node_modules/.bin/yaspeller -c common-configs/.yaspellerrc
+    - name: Get all changed markdown files
+      uses: tj-actions/changed-files@v45
+      id: changed_files
+      with:
+        files: |
+           ru/**.md
+    - uses: funkill/spellcheck-github-actions@hunspell-support
+      with:
+        task_name: Markdown
+        source_files: ${{ steps.changed_files.outputs.all_changed_files }}
   gitlocalize-bug-checking:
     name: Checking Gitlocalize bugs
     runs-on: ubuntu-latest
