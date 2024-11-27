@@ -1,7 +1,7 @@
 matrix:
 - name: Markdown
   hunspell:
-    d: ru_RU
+    d: ru_RU,en_US
   dictionary:
     #wordlists:
     #- common-configs/wordlist.txt
