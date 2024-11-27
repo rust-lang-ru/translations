@@ -22,7 +22,7 @@ jobs:
       with:
         files: |
            ru/**.md
-    - uses: funkill/spellcheck-github-actions@hunspell-support
+    - uses: funkill/spellcheck-github-actions@hunspell-support-action
       with:
         task_name: Markdown
         source_files: ${{ steps.changed_files.outputs.all_changed_files }}
