@@ -20,7 +20,7 @@ jobs:
       id: changed_files
       with:
         files: |
-           async-book-ru/**/*.md
+           ru/**/*.md
            README.md
     - name: List changed files
       if: steps.changed_files.outputs.any_changed == 'true'
