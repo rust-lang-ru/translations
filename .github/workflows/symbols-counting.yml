@@ -8,13 +8,30 @@ jobs:
     name: Symbols counting
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2.2.0
+    - uses: actions/checkout@v4
       with:
         submodules: recursive
         fetch-depth: 200
+    - name: Get all changed markdown files
+      uses: tj-actions/changed-files@v45
+      id: changed_files
+      with:
+        files: |
+           ru/**/*.md
+           README.md
+    - name: List changed files
+      if: steps.changed_files.outputs.any_changed == 'true'
+      env:
+        ALL_CHANGED_FILES: ${{ steps.changed_files.outputs.all_changed_files }}
+      run: |
+        for file in ${ALL_CHANGED_FILES}; do
+          echo "$file was changed"
+        done
     - uses: rust-lang-ru/simpleinfra/syms-counter@master
+      if: steps.changed_files.outputs.any_changed == 'true'
       env:
         RUST_BACKTRACE: full
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tagged_users: "@funkill @ava57r @TelegaOvoshey"
+        source_files: ${{ steps.changed_files.outputs.all_changed_files }}
