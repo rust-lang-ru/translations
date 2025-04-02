@@ -84,29 +84,35 @@ assert_eq!(v, &[1, 11, 111]);
 
 ### Allow safe functions to be marked with the `#[target_feature]` attribute.
 
-Functions marked with `#[target_feature]` are generally considered as unsafe functions: they are unsafe to call, cannot *generally* be assigned to safe function pointers, and don't implement the `Fn*` traits.
+Previously only `unsafe` functions could be marked with the `#[target_feature]` attribute as it is unsound to call such functions without the target feature being enabled. This release stabilizes the `target_feature_11` feature, allowing *safe* functions to be marked with the `#[target_feature]` attribute.
 
-However, calling them from other `#[target_feature]` functions with a superset of features is safe.
+Safe functions marked with the target feature attribute can only be safely called from other functions marked with the target feature attribute. However, they cannot be passed to functions accepting generics bounded by the `Fn*` traits and only support being coerced to function pointers inside of functions marked with the `target_feature` attribute.
+
+Inside of functions not marked with the target feature attribute they can be called inside of an `unsafe` block, however it is the callers responsibility to ensure that the target feature is available.
 
 ```rust
-// Demonstration function
 #[target_feature(enable = "avx2")]
-fn avx2() {}
+fn requires_avx2() {
+    // ... snip
+}
 
-fn foo() {
-    // Calling `avx2` here is unsafe, as we must ensure
-    // that AVX is available first.
-    unsafe {
-        avx2();
+#[target_feature(enable = "avx2")]
+fn safe_callsite() {
+    // Calling `requires_avx2` here is safe as `bar`
+    // requires the `avx2` feature itself.
+    requires_avx2();
+}
+
+fn unsafe_callsite() {
+    // Calling `requires_avx2` here is unsafe, as we must
+    // ensure that the `avx2` feature is available first.
+    if is_x86_feature_detected!("avx2") {
+        unsafe { requires_avx2() };
     }
 }
-
-#[target_feature(enable = "avx2")]
-fn bar() {
-    // Calling `avx2` here is safe.
-    avx2();
-}
 ```
+
+You can check the [`target_features_11`](https://github.com/rust-lang/rfcs/blob/master/text/2396-target-feature-1.1.md) RFC for more information.
 
 ### Debug assertions that pointers are non-null when required for soundness
 
@@ -127,7 +133,7 @@ You can check the [Explicit Extern ABIs RFC](https://rust-lang.github.io/rfcs/37
 
 ### Target deprecation warning for 1.87.0
 
-The target `i586-pc-windows-msvc` will be removed in the next version of Rust, 1.87.0. Its difference to the much more popular `i686-pc-windows-msvc` is that it does not require SSE2 instruction support, but Windows 10, the minimum required OS version of all `windows` targets (except the `win7` targets), requires SSE2 instructions itself.
+The tier-2 target `i586-pc-windows-msvc` will be removed in the next version of Rust, 1.87.0. Its difference to the much more popular `i686-pc-windows-msvc` is that it does not require SSE2 instruction support, but Windows 10, the minimum required OS version of all `windows` targets (except the `win7` targets), requires SSE2 instructions itself.
 
 All users currently targeting `i586-pc-windows-msvc` should migrate to `i686-pc-windows-msvc` before the `1.87.0` release.
 
@@ -137,6 +143,9 @@ You can check the [Major Change Proposal](https://github.com/rust-lang/compiler-
 
 - [`{float}::next_down`](https://doc.rust-lang.org/stable/std/primitive.f64.html#method.next_down)
 - [`{float}::next_up`](https://doc.rust-lang.org/stable/std/primitive.f64.html#method.next_up)
+- [`<[_]>::get_disjoint_mut`](https://doc.rust-lang.org/stable/std/primitive.slice.html#method.get_disjoint_mut)
+- [`<[_]>::get_disjoint_unchecked_mut`](https://doc.rust-lang.org/stable/std/primitive.slice.html#method.get_disjoint_unchecked_mut)
+- [`slice::GetDisjointMutError`](https://doc.rust-lang.org/stable/std/slice/enum.GetDisjointMutError.html)
 - [`HashMap::get_disjoint_mut`](https://doc.rust-lang.org/std/collections/hash_map/struct.HashMap.html#method.get_disjoint_mut)
 - [`HashMap::get_disjoint_unchecked_mut`](https://doc.rust-lang.org/std/collections/hash_map/struct.HashMap.html#method.get_disjoint_unchecked_mut)
 - [`NonZero::count_ones`](https://doc.rust-lang.org/stable/std/num/struct.NonZero.html#method.count_ones)
@@ -144,13 +153,10 @@ You can check the [Major Change Proposal](https://github.com/rust-lang/compiler-
 - [`sync::Once::wait`](https://doc.rust-lang.org/stable/std/sync/struct.Once.html#method.wait)
 - [`sync::Once::wait_force`](https://doc.rust-lang.org/stable/std/sync/struct.Once.html#method.wait_force)
 - [`sync::OnceLock::wait`](https://doc.rust-lang.org/stable/std/sync/struct.OnceLock.html#method.wait)
-- [`<[_]>::get_disjoint_mut`](https://doc.rust-lang.org/stable/std/primitive.slice.html#method.get_disjoint_mut)
-- [`<[_]>::get_disjoint_unchecked_mut`](https://doc.rust-lang.org/stable/std/primitive.slice.html#method.get_disjoint_unchecked_mut)
-- [`slice::GetDisjointMutError`](https://doc.rust-lang.org/stable/std/slice/enum.GetDisjointMutError.html)
-
 
 These APIs are now stable in const contexts:
 
+- [`hint::black_box`](https://doc.rust-lang.org/stable/std/hint/fn.black_box.html)
 - [`io::Cursor::get_mut`](https://doc.rust-lang.org/stable/std/io/struct.Cursor.html#method.get_mut)
 - [`io::Cursor::set_position`](https://doc.rust-lang.org/stable/std/io/struct.Cursor.html#method.set_position)
 - [`str::is_char_boundary`](https://doc.rust-lang.org/stable/std/primitive.str.html#method.is_char_boundary)
@@ -158,7 +164,6 @@ These APIs are now stable in const contexts:
 - [`str::split_at_checked`](https://doc.rust-lang.org/stable/std/primitive.str.html#method.split_at_checked)
 - [`str::split_at_mut`](https://doc.rust-lang.org/stable/std/primitive.str.html#method.split_at_mut)
 - [`str::split_at_mut_checked`](https://doc.rust-lang.org/stable/std/primitive.str.html#method.split_at_mut_checked)
-- [`hint::black_box`](https://doc.rust-lang.org/stable/std/hint/fn.black_box.html)
 
 ### Other changes
 
