@@ -27,9 +27,9 @@ fn upcast(x: &dyn Trait) -> &dyn Supertrait {
 }
 ```
 
-The same would work with any other kind of (smart-)pointer, like `Arc<dyn Trait> -> Arc<dyn Supertrait>` or `*const dyn Trait -> *const dyn Supertrait`.
+То же самое будет работать с любым другим типом (умного) указателя, например `Arc<dyn Trait> -> Arc<dyn Supertrait>` или `*const dyn Trait -> *const dyn Supertrait`.
 
-Previously this would have required a workaround in the form of an `upcast` method in the `Trait` itself, for example `fn as_supertrait(&self) -> &dyn Supertrait`, and this would work only for one kind of reference/pointer. Such workarounds are not necessary anymore.
+Раньше это потребовало бы обходного пути в виде метода `upcast` в самом `Trait`, например `fn as_supertrait(&self) -> &dyn Supertrait`, и это работало бы только для одного вида ссылки/указателя. Такие обходные пути больше не нужны.
 
 Обратите внимание, что это означает, что необработанные указатели на nhtqn-объекты содержат нетривиальный инвариант: "утёкший" в безопасный код необработанный указатель на трейт-объект с недопустимой виртуальной таблицей  может привести к неопределенному поведению. Пока не решено, приведет ли временное создание такого необработанного указателя в хорошо контролируемых обстоятельствах к немедленному неопределенному поведению или нет, поэтому код должен воздерживаться от создания таких указателей ни при каких условиях (и Miri обеспечивает это).
 
@@ -47,7 +47,7 @@ impl dyn MyAny {
 }
 ```
 
-You can [learn more about trait upcasting in the Rust reference](https://doc.rust-lang.org/reference/type-coercions.html#unsized-coercions).
+[Дополнительную информацию о преобразовании типов можно найти в Rust reference](https://doc.rust-lang.org/reference/type-coercions.html#unsized-coercions).
 
 ### `HashMap` и срезы теперь поддерживают изменяемую индексацию нескольких элементов
 
@@ -78,11 +78,11 @@ assert_eq!(v, &[1, 11, 111]);
 
 ### Разрешено помечать безопасные функции атрибутом `#[target_feature]`
 
-Previously only `unsafe` functions could be marked with the `#[target_feature]` attribute as it is unsound to call such functions without the target feature being enabled. This release stabilizes the `target_feature_11` feature, allowing *safe* functions to be marked with the `#[target_feature]` attribute.
+Ранее только `unsafe` функции могли быть помечены атрибутом `#[target_feature]` поскольку нецелесообразно вызывать такие функции без включения целевой функции. Этот релиз стабилизирует функцию `target_feature_11`, позволяя помечать *безопасные* функции атрибутом `#[target_feature]`.
 
-Safe functions marked with the target feature attribute can only be safely called from other functions marked with the target feature attribute. However, they cannot be passed to functions accepting generics bounded by the `Fn*` traits and only support being coerced to function pointers inside of functions marked with the `target_feature` attribute.
+Безопасные функции, отмеченные атрибутом target feature, могут быть безопасно вызваны только из других функций, отмеченных атрибутом target feature. Однако их нельзя передать функциям, принимающим обобщения, ограниченные чертами `Fn*`, и они поддерживают только приведение к указателям функций внутри функций, отмеченных атрибутом `target_feature`.
 
-Inside of functions not marked with the target feature attribute they can be called inside of an `unsafe` block, however it is the callers responsibility to ensure that the target feature is available.
+Внутри функций, не отмеченных атрибутом целевой функции, они могут быть вызваны внутри `unsafe` блока, однако вызывающая сторона несет ответственность за обеспечение доступности целевой функции.
 
 ```rust
 #[target_feature(enable = "avx2")]
@@ -106,9 +106,9 @@ fn unsafe_callsite() {
 }
 ```
 
-You can check the [`target_features_11`](https://github.com/rust-lang/rfcs/blob/master/text/2396-target-feature-1.1.md) RFC for more information.
+Более подробную информацию можно найти в RFC [`target_features_11`](https://github.com/rust-lang/rfcs/blob/master/text/2396-target-feature-1.1.md).
 
-### Debug assertions that pointers are non-null when required for soundness
+### Отладка утверждений о том, что указатели не равны нулю, когда это необходимо для корректности
 
 Компилятор теперь будет вставлять отладочные проверки о том, что указатель не равен null, при выполнении операций чтения и записи ненулевого размера, а также при повторном преобразовании указателя в ссылку. Например, следующий код теперь будет генерировать панику без размотки, когда включены отладочные утверждения:
 
@@ -117,7 +117,7 @@ let _x = *std::ptr::null::<u8>();
 let _x = &*std::ptr::null::<u8>();
 ```
 
-Trivial examples like this have produced a warning since Rust 1.53.0, the new runtime check will detect these scenarios regardless of complexity.
+Такие тривиальные примеры, как этот, вызывали предупреждение, начиная с Rust 1.53.0; новая проверка во время выполнения обнаружит такие сценарии независимо от их сложности.
 
 Эти проверки выполняются только тогда, когда включены отладочные проверки, что означает, что на их надежность **не следует** полагаться. Это также означает, что зависимости, которые были скомпилированы с отключенными отладочными проверка (например, стандартная библиотека), не будут запускать проверки, даже если они вызываются кодом с включенными отладочными проверками.
 
@@ -125,15 +125,15 @@ Trivial examples like this have produced a warning since Rust 1.53.0, the new ru
 
 Пропуск ABI в extern-блоках и функциях (например, `extern {}` и `extern fn`) теперь приведет к появлению предупреждения (через проверку `missing_abi`). Пропуск ABI после ключевого слова `extern` всегда неявно приводил к включению ABI `"C"`. Теперь рекомендуется явно указывать `"C"` ABI (например, `extern "C" {}` и `extern "C" fn`).
 
-You can check the [Explicit Extern ABIs RFC](https://rust-lang.github.io/rfcs/3722-explicit-extern-abis.html) for more information.
+Более подробную информацию можно найти в [документе RFC «Explicit Extern ABIs»](https://rust-lang.github.io/rfcs/3722-explicit-extern-abis.html).
 
-### Target deprecation warning for 1.87.0
+### Предупреждение об устаревании таргета для 1.87.0
 
-The tier-2 target `i586-pc-windows-msvc` will be removed in the next version of Rust, 1.87.0. Its difference to the much more popular `i686-pc-windows-msvc` is that it does not require SSE2 instruction support, but Windows 10, the minimum required OS version of all `windows` targets (except the `win7` targets), requires SSE2 instructions itself.
+tier-2 `i586-pc-windows-msvc` будет удален в следующей версии Rust 1.87.0. Его отличие от гораздо более популярного `i686-pc-windows-msvc` заключается в том, что он не требует поддержки инструкций SSE2, но Windows 10, минимально необходимая версия ОС для всех целевых объектов `windows` (кроме целевых объектов `win7`), сама требует инструкций SSE2.
 
-All users currently targeting `i586-pc-windows-msvc` should migrate to `i686-pc-windows-msvc` before the `1.87.0` release.
+Всем пользователям, которые в настоящее время используют `i586-pc-windows-msvc` следует перейти на `i686-pc-windows-msvc` до выхода версии `1.87.0`.
 
-You can check the [Major Change Proposal](https://github.com/rust-lang/compiler-team/issues/840) for more information.
+Более подробную информацию можно найти [в Предложении о крупных изменениях](https://github.com/rust-lang/compiler-team/issues/840).
 
 ### Стабилизированные API
 
