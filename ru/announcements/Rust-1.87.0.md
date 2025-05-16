@@ -2,17 +2,17 @@ Rust 1.87.0 и 10 лет Rust!
 
 [extra] release = true +++
 
-Live from the [10 Years of Rust celebration](https://2025.rustweek.org/celebration/) in Utrecht, Netherlands, the Rust team is happy to announce a new version of Rust, 1.87.0!
+Команда Rust [празднует 10-летие Rust](https://2025.rustweek.org/celebration/) в Утрехте, Нидерланды, и рада сообщить о новой версии языка — 1.87.0!
 
 ![placeholder](https://placehold.co/800x500)
 
-Today's release day happens to fall exactly on the 10 year anniversary of [Rust 1.0](https://blog.rust-lang.org/2015/05/15/Rust-1.0/)!
+Сегодняшний день релиза выпал на 10-летний юбилей выхода [Rust 1.0](https://blog.rust-lang.org/2015/05/15/Rust-1.0/)!
 
-Thank you to the myriad contributors who have worked on Rust, past and present. Here's to many more decades of Rust! 🎉
+Спасибо мириадам участников, кто работал или работает над Rust. Выпьем за ещё многие десятилетия впереди! 🎉
 
 ---
 
-As usual, the new version includes all the changes that have been part of the beta version in the past six weeks, following the consistent regular release cycle that we have followed since Rust 1.0.
+Как обычно, новая версия включает в себя все изменения, которые были внесены в бета-версию за последние шесть недель согласно последовательному и регулярному циклу выпуска. Мы следуем ему, начиная с Rust 1.0.
 
 Если у вас есть предыдущая версия Rust, установленная через `rustup`, то для обновления до версии 1.87.0 вам достаточно выполнить команду:
 
@@ -28,7 +28,7 @@ $ rustup update stable
 
 ### Анонимные конвееры
 
-1.87 adds access to anonymous pipes to the standard library. This includes integration with `std::process::Command`'s input/output methods. For example, joining the stdout and stderr streams into one is now relatively straightforward, as shown below, while it used to require either extra threads or platform-specific functions.
+1.87 даёт доступ из стандартной библиотеки к анонимным каналам, включая интеграцию с методами ввода/вывода `std::process::Command`. Например, объединить stdout и stderr в один поток теперь относительно просто, в то время как раньше необходимо было использовать разные потоки или платформо-специфические функции.
 
 ```rust
 use std::process::Command;
@@ -37,7 +37,7 @@ use std::io::Read;
 let (mut recv, send) = std::io::pipe()?;
 
 let mut command = Command::new("path/to/bin")
-    // Both stdout and stderr will write to the same pipe, combining the two.
+    // И stdout, и stderr теперь пишут в один канал.
     .stdout(send.try_clone()?)
     .stderr(send)
     .spawn()?;
@@ -45,14 +45,14 @@ let mut command = Command::new("path/to/bin")
 let mut output = Vec::new();
 recv.read_to_end(&mut output)?;
 
-// It's important that we read from the pipe before the process exits, to avoid
-// filling the OS buffers if the program emits too much output.
+// Обратите внимание, что что мы читаем из канала до завершения процесса, для исключения
+// переполнения буфера ОС, если программа создаст очень много вывода.
 assert!(command.wait()?.success());
 ```
 
-### Safe architecture intrinsics
+### Безопасные архитектурные интринсики
 
-Most `std::arch` intrinsics that are unsafe only due to requiring target features to be enabled are now callable in safe code that has those features enabled. For example, the following toy program which implements summing an array using manual intrinsics can now use safe code for the core loop.
+Большинство интринсиков из `std::arch`, которые небезопасны только из-за того, что требуют включения таргет фич, теперь могут быть вызваны из безопасного кода, в котором эти фичи включены. Например, следующая программа, реализующая суммирование элементов массива с использованием ручных интринсиков, теперь использует безопасный код в основном цикле.
 
 ```rust
 #![forbid(unsafe_op_in_unsafe_fn)]
@@ -63,8 +63,8 @@ fn sum(slice: &[u32]) -> u32 {
     #[cfg(target_arch = "x86_64")]
     {
         if is_x86_feature_detected!("avx2") {
-            // SAFETY: We have detected the feature is enabled at runtime,
-            // so it's safe to call this function.
+            // БЕЗОПАСНОСТЬ: Во время работы мы удостоверились, что необходимая функциональность присутствует,
+            // так что вызывать эту функицю безопасно.
             return unsafe { sum_avx2(slice) };
         }
     }
@@ -75,20 +75,20 @@ fn sum(slice: &[u32]) -> u32 {
 #[target_feature(enable = "avx2")]
 #[cfg(target_arch = "x86_64")]
 fn sum_avx2(slice: &[u32]) -> u32 {
-    // SAFETY: __m256i and u32 have the same validity.
+    // БЕЗОПАСНОСТЬ: __m256i и u32 одинаково валидны.
     let (prefix, middle, tail) = unsafe { slice.align_to::<__m256i>() };
     
     let mut sum = prefix.iter().sum::<u32>();
     sum += tail.iter().sum::<u32>();
     
-    // Core loop is now fully safe code in 1.87, because the intrinsics require
-    // matching target features (avx2) to the function definition.
+    // Основной цикл теперь полностью состоит из безопасного кода, потому что интринсики, требующие таргет фичу (avx2),
+    // упакованы в саму функцию.
     let mut base = _mm256_setzero_si256();
     for e in middle.iter() {
         base = _mm256_add_epi32(base, *e);
     }
     
-    // SAFETY: __m256i and u32 have the same validity.
+    // БЕЗОПАСНОСТЬ: __m256i и u32 одинаково валидны.
     let base: [u32; 8] = unsafe { std::mem::transmute(base) };
     sum += base.iter().sum::<u32>();
     
@@ -96,13 +96,13 @@ fn sum_avx2(slice: &[u32]) -> u32 {
 }
 ```
 
-### `asm!` jumps to Rust code
+### `asm!` прыжки в Rust-код
 
-Inline assembly (`asm!`) can now jump to labeled blocks within Rust code. This enables more flexible low-level programming, such as implementing optimized control flow in OS kernels or interacting with hardware more efficiently.
+Встроенный ассемблер (`asm!`) теперь может прыгать в помеченные участки Rust-кода. Это делает более гибким низкоуровневое программирование — например, реализацию оптимизированного контроля управления в ядрах ОС или более эффективное взаимодействие с железом.
 
-- The `asm!` macro now supports a label operand, which acts as a jump target.
-- The label must be a block expression with a return type of `()` or `!`.
-- The block executes when jumped to, and execution continues after the `asm!` block.
+- Макрос `asm!` теперь поддерживает операнд `label`, который работает как переход к метке
+- Метка должна быть блочным выражением с возвращаемым типом `()` или `!`
+- Блок выполняется, когда на него совершается прыжок. Выполнение продолжается после блока `asm!`.
 - Использование операндов `output` и `label` в одном вызове `asm!` остаётся [unstable](https://github.com/rust-lang/rust/issues/119364).
 
 ```rust
@@ -116,11 +116,11 @@ unsafe {
 }
 ```
 
-For more details, please consult the [reference](https://doc.rust-lang.org/nightly/reference/inline-assembly.html#r-asm.operand-type.supported-operands.label).
+Больше информации можно найти в [reference](https://doc.rust-lang.org/nightly/reference/inline-assembly.html#r-asm.operand-type.supported-operands.label).
 
 ### Прецизионный захват (`+ use<...>`) в `impl Trait` в объявлении трейтов
 
-This release stabilizes specifying the specific captured generic types and lifetimes in trait definitions using `impl Trait` return types. This allows using this feature in trait definitions, expanding on the stabilization for non-trait functions in [1.82](https://blog.rust-lang.org/2024/10/17/Rust-1.82.0/#precise-capturing-use-syntax).
+В этом выпуске стабилизировано указание конкретных захваченных обобщённых типов и времён жизни в объявлениях трейтов с использованием возвращаемых типов `impl Trait`. Благодаря чему теперь можно использовать эту функцию в определениях трейтов, расширяя возможности стабилизации для функций, не связанных с трейтами, в [1.82](https://blog.rust-lang.org/2024/10/17/Rust-1.82.0/#precise-capturing-use-syntax).
 
 Несколько примеров:
 
@@ -223,9 +223,9 @@ trait Foo {
 
 ### Удаление таргета `i586-pc-windows-msvc`
 
-The Tier 2 target `i586-pc-windows-msvc` has been removed. `i586-pc-windows-msvc`'s difference to the much more popular Tier 1 target `i686-pc-windows-msvc` is that `i586-pc-windows-msvc` does not require SSE2 instruction support. But Windows 10, the minimum required OS version of all `windows` targets (except the `win7` targets), requires SSE2 instructions itself.
+Таргет `i586-pc-windows-msvc` удалён из Tier 2. Отличие `i586-pc-windows-msvc` от более популярного таргета `i686-pc-windows-msvc` из Tier 1 в том, что `i586-pc-windows-msvc` не требует поддержки инструкций SSE2. Но Windows 10, минимально допустимая версия ОС для всех `windows`-таргетов (за исключением `win7`), сама по себе требует инструкций SSE2.
 
-All users currently targeting `i586-pc-windows-msvc` should migrate to `i686-pc-windows-msvc`.
+Все пользователи, использующие в качестве целевой платформы `i586-pc-windows-msvc`, должны мигрировать на `i686-pc-windows-msvc`.
 
 Для большей информации вы можете изучить [Major Change Proposal](https://github.com/rust-lang/compiler-team/issues/840).
 
