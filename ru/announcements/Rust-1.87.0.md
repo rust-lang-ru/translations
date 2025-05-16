@@ -110,7 +110,7 @@ unsafe {
     asm!(
         "jmp {}",
         label {
-            println!("Jumped from asm!");
+            println!("Выскочил из asm!");
         }
     );
 }
@@ -141,7 +141,7 @@ trait Foo {
 }
 ```
 
-### Stabilized APIs
+### Стабилизированные API
 
 - [`Vec::extract_if`](https://doc.rust-lang.org/stable/std/vec/struct.Vec.html#method.extract_if)
 - [`vec::ExtractIf`](https://doc.rust-lang.org/stable/std/vec/struct.ExtractIf.html)
