@@ -27,7 +27,7 @@ If you'd like to help us out by testing future releases, you might consider upda
 Rust now supports `_` as an argument to const generic parameters, inferring the value from surrounding context:
 
 ```rust
-pub fn make_bitset<const LEN: usize>() -> [bool; LEN] {
+pub fn all_false<const LEN: usize>() -> [bool; LEN] {
   [false; _]
 }
 ```
@@ -36,11 +36,12 @@ Similar to the rules for when `_` is permitted as a type, `_` is not permitted a
 
 ```rust
 // This is not allowed
-pub const fn make_bitset<const LEN: usize>() -> [bool; _] {
+pub const fn all_false<const LEN: usize>() -> [bool; _] {
   [false; LEN]
 }
+
 // Neither is this
-pub const MY_BITSET: [bool; _] = make_bitset::<10>();
+pub const ALL_FALSE: [bool; _] = all_false::<10>();
 ```
 
 ### Mismatched lifetime syntaxes lint
@@ -52,7 +53,7 @@ pub const MY_BITSET: [bool; _] = make_bitset::<10>();
 // but there's no visual indication of that.
 //
 // Lifetime elision infers the lifetime of the return 
-// value to be the same as the argument `scores`.
+// type to be the same as that of `scores`.
 fn items(scores: &[u8]) -> std::slice::Iter<u8> {
    scores.iter()
 }
@@ -131,9 +132,22 @@ pub fn cool_simd_code(/* .. */) -> /* ... */ {
 
 ```
 
+### Cross-compiled doctests
+
+Doctests will now be tested when running `cargo test --doc --target other_target`, this may result in some amount of breakage due to would-be-failing doctests now being tested.
+
+Failing tests can be disabled by annotating the doctest with `ignore-<target>`:
+```rust
+/// ```ignore-x86_64
+/// panic!("something")
+/// ```
+pub fn my_function() { }
+``` 
+
 ### Platform Support
 
 - [Add new Tier-3 targets `loongarch32-unknown-none` and `loongarch32-unknown-none-softfloat`](https://github.com/rust-lang/rust/pull/142053)
+- [WASM's C abi is now spec compliant](https://github.com/rust-lang/rust/pull/133952)
 
 Refer to Rust’s [platform support page][platform_support_page] for more information on Rust’s tiered platform support.
 
