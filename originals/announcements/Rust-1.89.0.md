@@ -136,7 +136,7 @@ pub fn cool_simd_code(/* .. */) -> /* ... */ {
 
 Doctests will now be tested when running `cargo test --doc --target other_target`, this may result in some amount of breakage due to would-be-failing doctests now being tested.
 
-Failing tests can be disabled by annotating the doctest with `ignore-<target>`:
+Failing tests can be disabled by annotating the doctest with `ignore-<target>` ([docs](https://doc.rust-lang.org/stable/rustdoc/write-documentation/documentation-tests.html#ignoring-targets)):
 ```rust
 /// ```ignore-x86_64
 /// panic!("something")
@@ -144,10 +144,38 @@ Failing tests can be disabled by annotating the doctest with `ignore-<target>`:
 pub fn my_function() { }
 ``` 
 
+### `i128` and `u128` in `extern "C"` functions
+
+`i128` and `u128` no longer trigger the `improper_ctypes_definitions` lint, meaning these types may be used in `extern "C"` functions without warning. This comes with some caveats:
+
+* The Rust types are ABI- and layout-compatible with (unsigned) `__int128` in C when the type is available.
+* On platforms where `__int128` is not available, `i128` and `u128` do not necessarily align with any C type.
+* `i128` is _not_ necessarily compatible with `_BitInt(128)` on any platform, because `_BitInt(128)` and `__int128` may not have the same ABI (as is the case on x86-64).
+
+This is the last bit of follow up to the layout changes from last year: https://blog.rust-lang.org/2024/03/30/i128-layout-update/.
+
+### Demoting `x86_64-apple-darwin` to Tier 2 with host tools
+
+GitHub will soon [discontinue][gha-sunset] providing free macOS x86\_64 runners for public repositories. Apple has also announced their [plans][apple] for discontinuing support for the x86\_64 architecture.
+
+In accordance with these changes, the Rust project is in the [process of demoting the `x86_64-apple-darwin` target][rfc] from [Tier 1 with host tools](https://doc.rust-lang.org/stable/rustc/platform-support.html#tier-1-with-host-tools) to [Tier 2 with host tools](https://doc.rust-lang.org/stable/rustc/platform-support.html#tier-2-with-host-tools). This means that the target, including tools like `rustc` and `cargo`, will be guaranteed to build but is not guaranteed to pass our automated test suite.
+
+We expect that the RFC for the demotion to Tier 2 with host tools will be accepted between the releases of Rust 1.89 and 1.90, which means that Rust 1.89 will be the last release of Rust where `x86_64-apple-darwin` is a Tier 1 target.
+
+For users, this change will not immediately cause impact. Builds of both the standard library and the compiler will still be distributed by the Rust Project for use via `rustup` or alternative installation methods while the target remains at Tier 2.
+
+[apple]: https://en.wikipedia.org/wiki/Mac_transition_to_Apple_silicon#Timeline
+[gha-sunset]: https://github.blog/changelog/2025-07-11-upcoming-changes-to-macos-hosted-runners-macos-latest-migration-and-xcode-support-policy-updates/#macos-13-is-closing-down
+[rfc]: https://github.com/rust-lang/rfcs/pull/3841
+
+### Standards Compliant C ABI on the `wasm32-unknown-unknown` target
+
+`extern "C"` functions on the `wasm32-unknown-unknown` target now have a standards compliant ABI. See this blog post for more information: https://blog.rust-lang.org/2025/04/04/c-abi-changes-for-wasm32-unknown-unknown.
+
 ### Platform Support
 
+- [`x86_64-apple-darwin` is in the process of being demoted to Tier 2 with host tools](https://github.com/rust-lang/rfcs/pull/3841)
 - [Add new Tier-3 targets `loongarch32-unknown-none` and `loongarch32-unknown-none-softfloat`](https://github.com/rust-lang/rust/pull/142053)
-- [WASM's C abi is now spec compliant](https://github.com/rust-lang/rust/pull/133952)
 
 Refer to Rust’s [platform support page][platform_support_page] for more information on Rust’s tiered platform support.
 
