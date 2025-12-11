@@ -26,24 +26,29 @@ If you'd like to help us out by testing future releases, you might consider upda
 
 The language and compiler teams continue to work on stabilization of the [never type](https://doc.rust-lang.org/stable/std/primitive.never.html). In this release the [`never_type_fallback_flowing_into_unsafe`](https://doc.rust-lang.org/beta/rustc/lints/listing/deny-by-default.html#dependency-on-unit-never-type-fallback) and [`dependency_on_unit_never_type_fallback`](https://doc.rust-lang.org/beta/rustc/lints/listing/deny-by-default.html#dependency-on-unit-never-type-fallback) future compatibility lints were made deny-by-default, meaning they will cause a compilation error when detected.
 
-These lints detect code which is likely to be broken by the never type stabilization. It is highly advised to fix them if they are reported in your crate.
+It's worth noting that while this can result in compilation errors, it is still a *lint;* these lints can all be `#[allow]`ed. These lints also will only fire when building the affected crates directly, not when they are built as dependencies (though a warning will be reported by Cargo in such cases).
+
+These lints detect code which is likely to be broken by the never type stabilization. It is highly advised to fix them if they are reported in your crate graph.
+
+We believe there to be approximately 500 crates affected by this lint. Despite that, we believe this to be acceptable, as lints are not a breaking change and it will allow for stabilizing the never type in the future. For more in-depth justification, see the [Language Team's assessment](https://github.com/rust-lang/rust/pull/146167#issuecomment-3363795006).
 
 ### `unused_must_use` no longer warns about `Result<(), UninhabitedType>`
 
 Rust's `unused_must_use` lint warns when ignoring the return value of a function, if the function or its return type is annotated with `#[must_use]`. For instance, this warns if ignoring a return type of `Result`, to remind you to use `?`, or something like `.expect("...")`.
 
-However, some functions return `Result`, but the error type they use is not actually "inhabited", meaning it can never exist in real code (e.g. the [`!`](https://doc.rust-lang.org/std/primitive.never.html) or [`Infallible`](https://doc.rust-lang.org/std/convert/enum.Infallible.html) types).
+However, some functions return `Result`, but the error type they use is not actually "inhabited", meaning you cannot construct any values of that type (e.g. the [`!`](https://doc.rust-lang.org/std/primitive.never.html) or [`Infallible`](https://doc.rust-lang.org/std/convert/enum.Infallible.html) types).
 
-The `unused_must_use` lint now no longer warns on `Result<(), UninhabitedType>`, or on `ControlFlow<UninhabitedType, ()>`. For instance, it will not warn on `Result<(), !>`. This avoids having to check for an error that can never happen.
+The `unused_must_use` lint now no longer warns on `Result<(), UninhabitedType>`, or on `ControlFlow<UninhabitedType, ()>`. For instance, it will not warn on `Result<(), Infallible>`. This avoids having to check for an error that can never happen.
 
 ```rust
-fn can_never_fail() -> Result<(), !> {
+use core::convert::Infallible;
+fn can_never_fail() -> Result<(), Infallible> {
     // ...
     Ok(())
 }
 
 fn main() {
-    can_never_fail()
+    can_never_fail();
 }
 ```
 
@@ -57,7 +62,7 @@ trait UsesAssocErrorType {
 
 struct CannotFail;
 impl UsesAssocErrorType for CannotFail {
-    type Error = !;
+    type Error = core::convert::Infallible;
     fn method(&self) -> Result<(), Self::Error> {
         Ok(())
     }
@@ -72,8 +77,8 @@ impl UsesAssocErrorType for CanFail {
 }
 
 fn main() {
-    CannotFail.method(); // No error
-    CanFail.method(); // Error: unused `Result` that must be used
+    CannotFail.method(); // No warning
+    CanFail.method(); // Warning: unused `Result` that must be used
 }
 ```
 
@@ -85,25 +90,32 @@ In Rust 1.92 unwind tables will be emitted by default even when `-Cpanic=abort` 
 
 ### Validate input to `#[macro_export]`
 
-Over the past few releases, many changes were made to the way built-in attributes are processed in the compiler. This should greatly improve the error messages and warnings rust gives for built-in attributes and especially make these diagnostics more consistent among all of the over 100 built-in attributes.
+Over the past few releases, many changes were made to the way built-in attributes are processed in the compiler. This should greatly improve the error messages and warnings Rust gives for built-in attributes and especially make these diagnostics more consistent among all of the over 100 built-in attributes.
 
-To give a small example, in this release specifically, Rust became stricter in checking what arguments are allowed to `macro_export` by [upgrading that check to a "deny-by-default lint" that will be reported in dependencies.](https://github.com/rust-lang/rust/pull/143857). 
-
-### Restrictions on user code impls of `DerefMut` for `Pin`
-
-A soundness issue with `Pin` has been solved by preventing third-party crates from implementing `DerefMut` for `Pin<T>` when `T` is a local type that doesn't implement `DerefMut<Target: Unpin>`.
+To give a small example, in this release specifically, Rust became stricter in checking what arguments are allowed to `macro_export` by [upgrading that check to a "deny-by-default lint" that will be reported in dependencies](https://github.com/rust-lang/rust/pull/143857). 
 
 ### Stabilized APIs
 
-...
+- [`NonZero<u{N}>::div_ceil`](https://doc.rust-lang.org/stable/std/num/struct.NonZero.html#method.div_ceil)
+- [`Location::file_as_c_str`](https://doc.rust-lang.org/stable/std/panic/struct.Location.html#method.file_as_c_str)
+- [`RwLockWriteGuard::downgrade`](https://doc.rust-lang.org/stable/std/sync/struct.RwLockWriteGuard.html#method.downgrade)
+- [`Box::new_zeroed`](https://doc.rust-lang.org/stable/std/boxed/struct.Box.html#method.new_zeroed)
+- [`Box::new_zeroed_slice`](https://doc.rust-lang.org/stable/std/boxed/struct.Box.html#method.new_zeroed_slice)
+- [`Rc::new_zeroed`](https://doc.rust-lang.org/stable/std/rc/struct.Rc.html#method.new_zeroed)
+- [`Rc::new_zeroed_slice`](https://doc.rust-lang.org/stable/std/rc/struct.Rc.html#method.new_zeroed_slice)
+- [`Arc::new_zeroed`](https://doc.rust-lang.org/stable/std/sync/struct.Arc.html#method.new_zeroed)
+- [`Arc::new_zeroed_slice`](https://doc.rust-lang.org/stable/std/sync/struct.Arc.html#method.new_zeroed_slice)
+- [`btree_map::Entry::insert_entry`](https://doc.rust-lang.org/stable/std/collections/btree_map/enum.Entry.html#method.insert_entry)
+- [`btree_map::VacantEntry::insert_entry`](https://doc.rust-lang.org/stable/std/collections/btree_map/struct.VacantEntry.html#method.insert_entry)
+- [`impl Extend<proc_macro::Group> for proc_macro::TokenStream`](https://doc.rust-lang.org/stable/proc_macro/struct.TokenStream.html#impl-Extend%3CGroup%3E-for-TokenStream)
+- [`impl Extend<proc_macro::Literal> for proc_macro::TokenStream`](https://doc.rust-lang.org/stable/proc_macro/struct.TokenStream.html#impl-Extend%3CLiteral%3E-for-TokenStream)
+- [`impl Extend<proc_macro::Punct> for proc_macro::TokenStream`](https://doc.rust-lang.org/stable/proc_macro/struct.TokenStream.html#impl-Extend%3CPunct%3E-for-TokenStream)
+- [`impl Extend<proc_macro::Ident> for proc_macro::TokenStream`](https://doc.rust-lang.org/stable/proc_macro/struct.TokenStream.html#impl-Extend%3CIdent%3E-for-TokenStream)
 
 These previously stable APIs are now stable in const contexts:
 
-...
-
-### Platform Support
-
-Refer to Rust’s [platform support page][platform-support] for more information on Rust’s tiered platform support.
+- [`<[_]>::rotate_left`](https://doc.rust-lang.org/stable/std/primitive.slice.html#method.rotate_left)
+- [`<[_]>::rotate_right`](https://doc.rust-lang.org/stable/std/primitive.slice.html#method.rotate_right)
 
 ### Other changes
 
